@@ -10,8 +10,11 @@ namespace TalktifAPI.Data
 
         }
 
-        public DbSet<User> UserItems {get; set;}
-        public DbSet<Report> ReportItems { get; set; }
-        public DbSet<Messages> MessagesItems { get; set; } 
+        public DbSet<User> Users {get; set;}
+        public DbSet<Report> Reports { get; set; }
+        public DbSet<Messages> Messages { get; set; } 
+        public DbSet<ChatRoom> ChatRooms { get; set; }
+        
+        
     }
 }
