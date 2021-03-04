@@ -10,15 +10,12 @@ namespace TalktifAPI.Model
         public int roomId { get; set; }
         
         [Required]
-        public DateTime CreateAT { get; set; }
+        public DateTime createdAT { get; set; }
+        
         
         [Required]
-        [MaxLength(50)]
-        public string roomCategory { get; set; }
-        
-        [Required]
-        [MaxLength(50)]
-        public string RoomName { get; set; }
+        [MaxLength(100)]
+        public string roomName { get; set; }
         
     }
 }

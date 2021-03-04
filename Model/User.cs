@@ -25,7 +25,7 @@ namespace TalktifAPI.Model
         public int isAdmin { get; set; }
 
         [Required]
-        public DateTime creatAt { get; set; }
+        public DateTime createdAt { get; set; }
 
     }
 }

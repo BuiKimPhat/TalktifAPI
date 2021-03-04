@@ -28,7 +28,7 @@ namespace TalktifAPI.Model
         public string rpStatus { get; set; }
         
         [Required]
-        public DateTime creatAt { get; set; }
+        public DateTime createdAt { get; set; }
             
         
     }

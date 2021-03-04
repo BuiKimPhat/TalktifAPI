@@ -34,6 +34,6 @@ namespace TalktifAPI.Model
         public string contentCategory { get; set; }
         
         [Required]
-        public DateTime creatAt { get; set; } 
+        public DateTime createdAt { get; set; } 
     }
 }
