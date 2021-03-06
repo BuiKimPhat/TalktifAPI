@@ -12,7 +12,6 @@ namespace TalktifAPI.Model
         [Required]
         public DateTime createdAT { get; set; }
         
-        
         [Required]
         [MaxLength(100)]
         public string roomName { get; set; }

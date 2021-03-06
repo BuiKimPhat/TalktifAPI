@@ -22,7 +22,10 @@ namespace TalktifAPI.Model
         public string password { get; set; }
 
         [Required]
-        public int isAdmin { get; set; }
+        public Boolean isAdmin { get; set; }
+
+        [Required]
+        public Boolean userStatus { get; set; }
 
         [Required]
         public DateTime createdAt { get; set; }

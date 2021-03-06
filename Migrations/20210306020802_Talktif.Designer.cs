@@ -10,7 +10,7 @@ using TalktifAPI.Data;
 namespace TalktifAPI.Migrations
 {
     [DbContext(typeof(ApiContext))]
-    [Migration("20210303144110_Talktif")]
+    [Migration("20210306020802_Talktif")]
     partial class Talktif
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,7 +28,7 @@ namespace TalktifAPI.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("createAT")
+                    b.Property<DateTime>("createdAT")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("roomName")
@@ -58,7 +58,7 @@ namespace TalktifAPI.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<DateTime>("createAt")
+                    b.Property<DateTime>("createdAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("roomId")
@@ -83,7 +83,7 @@ namespace TalktifAPI.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("createAt")
+                    b.Property<DateTime>("createdAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("rpCategory")
@@ -118,7 +118,7 @@ namespace TalktifAPI.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("createAt")
+                    b.Property<DateTime>("createdAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("email")
@@ -126,8 +126,8 @@ namespace TalktifAPI.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("isAdmin")
-                        .HasColumnType("int");
+                    b.Property<bool>("isAdmin")
+                        .HasColumnType("bit");
 
                     b.Property<string>("name")
                         .IsRequired()
@@ -138,6 +138,9 @@ namespace TalktifAPI.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("userStatus")
+                        .HasColumnType("bit");
 
                     b.HasKey("id");
 

@@ -13,7 +13,7 @@ namespace TalktifAPI.Migrations
                 {
                     roomId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    createAT = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    createdAT = table.Column<DateTime>(type: "datetime2", nullable: false),
                     roomName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
@@ -30,8 +30,9 @@ namespace TalktifAPI.Migrations
                     name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     password = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    isAdmin = table.Column<int>(type: "int", nullable: false),
-                    createAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    isAdmin = table.Column<bool>(type: "bit", nullable: false),
+                    userStatus = table.Column<bool>(type: "bit", nullable: false),
+                    createdAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -48,7 +49,7 @@ namespace TalktifAPI.Migrations
                     roomId = table.Column<int>(type: "int", nullable: false),
                     content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     contentCategory = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    createAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    createdAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -77,7 +78,7 @@ namespace TalktifAPI.Migrations
                     rpCategory = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     rpDescription = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     rpStatus = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    createAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    createdAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
