@@ -13,7 +13,6 @@ namespace TalktifAPI.Model
         [Required]
         public User sender { get; set; }
 
-        
         [Required]
         [ForeignKey("sender")]
         public int senderId { get; set; }
@@ -23,7 +22,6 @@ namespace TalktifAPI.Model
         [Required]
         [ForeignKey("chatRoom")]
         public int roomId { get; set; }
-        
         
         [Required]
         [MaxLength(1000)]
