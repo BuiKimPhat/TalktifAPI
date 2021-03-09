@@ -21,6 +21,22 @@ namespace TalktifAPI.Models
             UserFavFavouriteNavigations = new HashSet<UserFav>();
             UserFavUserNavigations = new HashSet<UserFav>();
         }
+        public User(string Name,string Email,String Password)
+        {
+            MessageFromNavigations = new HashSet<Message>();
+            MessageToNavigations = new HashSet<Message>();
+            ReportReporterNavigations = new HashSet<Report>();
+            ReportSuspectNavigations = new HashSet<Report>();
+            UserFavFavouriteNavigations = new HashSet<UserFav>();
+            UserFavUserNavigations = new HashSet<UserFav>();
+            this.Name = Name;
+            this.Email = Email;
+            this.Password = Password;
+            IsActive = false;
+            IsAdmin = false;
+            CreatedAt = DateTime.Now;
+        }
+        
 
         [Key]
         [Column("id")]

@@ -6,11 +6,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using TalktifAPI.Data;
+using TalktifAPI.Models;
 
 namespace TalktifAPI
 {
@@ -26,7 +29,11 @@ namespace TalktifAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddDbContext<TalktifContext>(opt => opt.UseSqlServer
+            (Configuration.GetConnectionString("TalktifConnection")));
+            services.AddScoped<IUserRepo,UserRepo>();
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddScoped<IUserRepo, UserRepo>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

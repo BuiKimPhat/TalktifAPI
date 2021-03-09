@@ -134,3 +134,5 @@ E:\Learnning\PBL 3\TalktifAPI\obj\Debug\net5.0\TalktifAPI.dll
 E:\Learnning\PBL 3\TalktifAPI\obj\Debug\net5.0\ref\TalktifAPI.dll
 E:\Learnning\PBL 3\TalktifAPI\obj\Debug\net5.0\TalktifAPI.pdb
 E:\Learnning\PBL 3\TalktifAPI\obj\Debug\net5.0\TalktifAPI.genruntimeconfig.cache
+E:\Learnning\PBL 3\TalktifAPI\bin\Debug\net5.0\AutoMapper.dll
+E:\Learnning\PBL 3\TalktifAPI\bin\Debug\net5.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
