@@ -19,10 +19,17 @@ namespace TalktifAPI.Controllers
         [Route("~/api/Users/SignUp")]
         public ActionResult<ReadUserDto> signUp(CreateUserDto user)
         {
-            if(!_repository.isUserExists(user.Email)) NotFound();
+            if(_repository.isUserExists(user.Email)) return new ReadUserDto{Id = 0, Name = "Nguoi dung Talktif",Email="SignUpFailed@mail.com"};
             CreateUserDto u = _repository.signUp(user);
             _repository.saveChange();
-            return Ok(getUserInfo(u.Email));
+            return Ok(_repository.getInfoByEmail(user.Email));
+        }
+        [HttpPost]
+        [Route("~/api/Users/SignIn")]
+        public ActionResult<ReadUserDto> signIn(LoginUserDto user)
+        {
+            if(!_repository.isUserExists(user.Email)) return new ReadUserDto{Id = 0, Name = "Nguoi dung Talktif",Email="SignUpFailed@mail.com"};
+            return Ok(_repository.signIn(user));
         }
         [HttpGet]
         [Route("{email}")]

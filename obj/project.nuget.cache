@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "0AFSjU8IbaafK30OVz29r4sDOhLns99+5gpa4fHDyhtTFtl665VJq4XlqT5M0buLDGZbpYsV/TkenK3LQBA/NQ==",
+  "dgSpecHash": "raOuBxgmRIAGLxJG8jxDeJ5DrSexNjNLPz1MJcJ3kfKlDcF1cJ0ktSnSWF/Pl/8L6kFLdCivFtXklq7UQVd3LQ==",
   "success": true,
   "projectFilePath": "E:\\Learnning\\PBL 3\\TalktifAPI\\TalktifAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\andep\\.nuget\\packages\\automapper\\10.1.1\\automapper.10.1.1.nupkg.sha512",
     "C:\\Users\\andep\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\8.1.1\\automapper.extensions.microsoft.dependencyinjection.8.1.1.nupkg.sha512",
+    "C:\\Users\\andep\\.nuget\\packages\\bcrypt.net-next\\4.0.2\\bcrypt.net-next.4.0.2.nupkg.sha512",
     "C:\\Users\\andep\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\andep\\.nuget\\packages\\microsoft.aspnetcore.html.abstractions\\2.2.0\\microsoft.aspnetcore.html.abstractions.2.2.0.nupkg.sha512",
     "C:\\Users\\andep\\.nuget\\packages\\microsoft.aspnetcore.razor\\2.2.0\\microsoft.aspnetcore.razor.2.2.0.nupkg.sha512",

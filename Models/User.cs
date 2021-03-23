@@ -53,7 +53,6 @@ namespace TalktifAPI.Models
         [Column("password")]
         [StringLength(100)]
         public string Password { get; set; }
-        [Column("isAdmin")]
         public bool? IsAdmin { get; set; }
         [Column("isActive")]
         public bool? IsActive { get; set; }

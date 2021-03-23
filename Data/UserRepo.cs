@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using TalktifAPI.Dtos;
 using TalktifAPI.Models;
+using BC = BCrypt.Net.BCrypt;
 
 namespace TalktifAPI.Data
 {
@@ -39,13 +40,21 @@ namespace TalktifAPI.Data
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            user.Password = BC.HashPassword(user.Password);
             _context.Users.Add(new User(user.Name,user.Email,user.Password));
             return user;
         }
 
-        public User signin()
+        public ReadUserDto signIn(LoginUserDto user)
         {
-            throw new NotImplementedException();
+            if(user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            User read = _context.Users.FirstOrDefault(p => p.Email == user.Email);
+            if(true == BC.Verify(user.Password,read.Password))
+            return new ReadUserDto{Email = read.Email, Name = read.Name,Id = read.Id};
+            else return new ReadUserDto{Id = 0, Name = "Nguoi dung Talktif",Email="SignUpFailed@mail.com"};
         }
     }
 }

@@ -10,6 +10,6 @@ namespace TalktifAPI.Data
         bool isUserExists(string user);
         ReadUserDto getInfoByEmail(string email);   
         CreateUserDto signUp(CreateUserDto user);
-        User signin();
+        ReadUserDto signIn(LoginUserDto user);
     }
 }
