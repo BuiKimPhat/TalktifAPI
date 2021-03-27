@@ -28,8 +28,5 @@ namespace TalktifAPI.Models
         [ForeignKey(nameof(From))]
         [InverseProperty(nameof(User.MessageFromNavigations))]
         public virtual User FromNavigation { get; set; }
-        [ForeignKey(nameof(To))]
-        [InverseProperty(nameof(User.MessageToNavigations))]
-        public virtual User ToNavigation { get; set; }
     }
 }

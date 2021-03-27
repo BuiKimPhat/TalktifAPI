@@ -15,19 +15,15 @@ namespace TalktifAPI.Models
         public User()
         {
             MessageFromNavigations = new HashSet<Message>();
-            MessageToNavigations = new HashSet<Message>();
             ReportReporterNavigations = new HashSet<Report>();
-            ReportSuspectNavigations = new HashSet<Report>();
-            UserFavFavouriteNavigations = new HashSet<UserFav>();
+            UserTokenUserNavigations = new HashSet<UserToken>();
             UserFavUserNavigations = new HashSet<UserFav>();
         }
         public User(string Name,string Email,String Password)
         {
             MessageFromNavigations = new HashSet<Message>();
-            MessageToNavigations = new HashSet<Message>();
             ReportReporterNavigations = new HashSet<Report>();
-            ReportSuspectNavigations = new HashSet<Report>();
-            UserFavFavouriteNavigations = new HashSet<UserFav>();
+            UserTokenUserNavigations = new HashSet<UserToken>();
             UserFavUserNavigations = new HashSet<UserFav>();
             this.Name = Name;
             this.Email = Email;
@@ -36,8 +32,6 @@ namespace TalktifAPI.Models
             IsAdmin = false;
             CreatedAt = DateTime.Now;
         }
-        
-
         [Key]
         [Column("id")]
         public int Id { get; set; }
@@ -61,15 +55,11 @@ namespace TalktifAPI.Models
 
         [InverseProperty(nameof(Message.FromNavigation))]
         public virtual ICollection<Message> MessageFromNavigations { get; set; }
-        [InverseProperty(nameof(Message.ToNavigation))]
-        public virtual ICollection<Message> MessageToNavigations { get; set; }
         [InverseProperty(nameof(Report.ReporterNavigation))]
         public virtual ICollection<Report> ReportReporterNavigations { get; set; }
-        [InverseProperty(nameof(Report.SuspectNavigation))]
-        public virtual ICollection<Report> ReportSuspectNavigations { get; set; }
-        [InverseProperty(nameof(UserFav.FavouriteNavigation))]
-        public virtual ICollection<UserFav> UserFavFavouriteNavigations { get; set; }
         [InverseProperty(nameof(UserFav.UserNavigation))]
         public virtual ICollection<UserFav> UserFavUserNavigations { get; set; }
+        [InverseProperty(nameof(UserToken.UserTokenNavigation))]
+        public virtual ICollection<UserToken> UserTokenUserNavigations { get; set; }
     }
 }

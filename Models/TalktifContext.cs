@@ -42,12 +42,6 @@ namespace TalktifAPI.Models
                     .HasForeignKey(d => d.From)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__Message__from__2D27B809");
-
-                entity.HasOne(d => d.ToNavigation)
-                    .WithMany(p => p.MessageToNavigations)
-                    .HasForeignKey(d => d.To)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Message__to__2E1BDC42");
             });
 
             modelBuilder.Entity<Report>(entity =>
@@ -57,12 +51,6 @@ namespace TalktifAPI.Models
                     .HasForeignKey(d => d.Reporter)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__Report__reporter__30F848ED");
-
-                entity.HasOne(d => d.SuspectNavigation)
-                    .WithMany(p => p.ReportSuspectNavigations)
-                    .HasForeignKey(d => d.Suspect)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Report__suspect__31EC6D26");
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -80,18 +68,22 @@ namespace TalktifAPI.Models
             {
                 entity.HasKey(e => new { e.User, e.Favourite })
                     .HasName("PK__User_Fav__A323CB9348DF7B6E");
-
-                entity.HasOne(d => d.FavouriteNavigation)
-                    .WithMany(p => p.UserFavFavouriteNavigations)
-                    .HasForeignKey(d => d.Favourite)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__User_Favs__favou__2A4B4B5E");
-
                 entity.HasOne(d => d.UserNavigation)
                     .WithMany(p => p.UserFavUserNavigations)
                     .HasForeignKey(d => d.User)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__User_Favs__user__29572725");
+            });
+
+            modelBuilder.Entity<UserToken>(entity =>
+            {
+                entity.HasKey(e => new { e.Id })
+                    .HasName("PK__User_Token__A323CB9448DF7B6E");
+                entity.HasOne(d => d.UserTokenNavigation)
+                    .WithMany(p => p.UserTokenUserNavigations)
+                    .HasForeignKey(d => d.Uid)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__User_Token__user__29572725");
             });
 
             OnModelCreatingPartial(modelBuilder);

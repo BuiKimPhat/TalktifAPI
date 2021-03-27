@@ -10,8 +10,8 @@ using TalktifAPI.Models;
 namespace TalktifAPI.Migrations
 {
     [DbContext(typeof(TalktifContext))]
-    [Migration("20210308033440_Talktif")]
-    partial class Talktif
+    [Migration("20210327040825_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -51,8 +51,6 @@ namespace TalktifAPI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("From");
-
-                    b.HasIndex("To");
 
                     b.ToTable("Message");
                 });
@@ -96,8 +94,6 @@ namespace TalktifAPI.Migrations
 
                     b.HasIndex("Reporter");
 
-                    b.HasIndex("Suspect");
-
                     b.ToTable("Report");
                 });
 
@@ -129,7 +125,6 @@ namespace TalktifAPI.Migrations
                     b.Property<bool?>("IsAdmin")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasColumnName("isAdmin")
                         .HasDefaultValueSql("((1))");
 
                     b.Property<string>("Name")
@@ -166,9 +161,33 @@ namespace TalktifAPI.Migrations
                     b.HasKey("User", "Favourite")
                         .HasName("PK__User_Fav__A323CB9348DF7B6E");
 
-                    b.HasIndex("Favourite");
-
                     b.ToTable("User_Favs");
+                });
+
+            modelBuilder.Entity("TalktifAPI.Models.UserToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("token");
+
+                    b.Property<int>("Uid")
+                        .HasMaxLength(100)
+                        .HasColumnType("int")
+                        .HasColumnName("uid");
+
+                    b.Property<int?>("User")
+                        .HasColumnType("int");
+                    b.HasIndex("Uid");
+
+                    b.ToTable("UserToken");
                 });
 
             modelBuilder.Entity("TalktifAPI.Models.Message", b =>
@@ -179,15 +198,7 @@ namespace TalktifAPI.Migrations
                         .HasConstraintName("FK__Message__from__2D27B809")
                         .IsRequired();
 
-                    b.HasOne("TalktifAPI.Models.User", "ToNavigation")
-                        .WithMany("MessageToNavigations")
-                        .HasForeignKey("To")
-                        .HasConstraintName("FK__Message__to__2E1BDC42")
-                        .IsRequired();
-
                     b.Navigation("FromNavigation");
-
-                    b.Navigation("ToNavigation");
                 });
 
             modelBuilder.Entity("TalktifAPI.Models.Report", b =>
@@ -198,49 +209,40 @@ namespace TalktifAPI.Migrations
                         .HasConstraintName("FK__Report__reporter__30F848ED")
                         .IsRequired();
 
-                    b.HasOne("TalktifAPI.Models.User", "SuspectNavigation")
-                        .WithMany("ReportSuspectNavigations")
-                        .HasForeignKey("Suspect")
-                        .HasConstraintName("FK__Report__suspect__31EC6D26")
-                        .IsRequired();
-
                     b.Navigation("ReporterNavigation");
-
-                    b.Navigation("SuspectNavigation");
                 });
 
             modelBuilder.Entity("TalktifAPI.Models.UserFav", b =>
                 {
-                    b.HasOne("TalktifAPI.Models.User", "FavouriteNavigation")
-                        .WithMany("UserFavFavouriteNavigations")
-                        .HasForeignKey("Favourite")
-                        .HasConstraintName("FK__User_Favs__favou__2A4B4B5E")
-                        .IsRequired();
-
                     b.HasOne("TalktifAPI.Models.User", "UserNavigation")
                         .WithMany("UserFavUserNavigations")
                         .HasForeignKey("User")
                         .HasConstraintName("FK__User_Favs__user__29572725")
                         .IsRequired();
 
-                    b.Navigation("FavouriteNavigation");
-
                     b.Navigation("UserNavigation");
+                });
+
+            modelBuilder.Entity("TalktifAPI.Models.UserToken", b =>
+                {
+                    b.HasOne("TalktifAPI.Models.User", "UserTokenNavigation")
+                        .WithMany("UserTokenUserNavigations")
+                        .HasForeignKey("Uid")
+                        .HasConstraintName("FK__User_Token__user__29572725")
+                        .IsRequired();
+
+                    b.Navigation("UserTokenNavigation");
                 });
 
             modelBuilder.Entity("TalktifAPI.Models.User", b =>
                 {
                     b.Navigation("MessageFromNavigations");
 
-                    b.Navigation("MessageToNavigations");
-
                     b.Navigation("ReportReporterNavigations");
 
-                    b.Navigation("ReportSuspectNavigations");
-
-                    b.Navigation("UserFavFavouriteNavigations");
-
                     b.Navigation("UserFavUserNavigations");
+
+                    b.Navigation("UserTokenUserNavigations");
                 });
 #pragma warning restore 612, 618
         }

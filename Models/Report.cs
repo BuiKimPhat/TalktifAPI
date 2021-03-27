@@ -33,8 +33,5 @@ namespace TalktifAPI.Models
         [ForeignKey(nameof(Reporter))]
         [InverseProperty(nameof(User.ReportReporterNavigations))]
         public virtual User ReporterNavigation { get; set; }
-        [ForeignKey(nameof(Suspect))]
-        [InverseProperty(nameof(User.ReportSuspectNavigations))]
-        public virtual User SuspectNavigation { get; set; }
     }
 }
