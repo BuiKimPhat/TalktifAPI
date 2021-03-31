@@ -183,8 +183,6 @@ namespace TalktifAPI.Migrations
                         .HasColumnType("int")
                         .HasColumnName("uid");
 
-                    b.Property<int?>("User")
-                        .HasColumnType("int");
                     b.HasIndex("Uid");
 
                     b.ToTable("UserToken");

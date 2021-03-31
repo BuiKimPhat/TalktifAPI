@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TalktifAPI.Data;
 using TalktifAPI.Dtos;
@@ -6,6 +8,7 @@ using TalktifAPI.Models;
 namespace TalktifAPI.Controllers
 {
     [Route("api/[controller]")]
+    //[Authorize]  
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -37,6 +40,12 @@ namespace TalktifAPI.Controllers
         {
             if(email!=null) NotFound();
             return Ok(_repository.getInfoByEmail(email));
+        }
+        [HttpGet]
+        [Route("~/api/Admin/GetAllUser")]
+        public List<ReadUserDto> getAllUser()
+        {
+            return _repository.getAllUser();
         }
     }
 }

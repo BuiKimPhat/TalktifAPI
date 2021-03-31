@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TalktifAPI.Models;
 
 namespace TalktifAPI.Migrations
 {
     [DbContext(typeof(TalktifContext))]
-    partial class TalktifContextModelSnapshot : ModelSnapshot
+    [Migration("20210331065836_blabla")]
+    partial class blabla
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -188,7 +190,6 @@ namespace TalktifAPI.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("int")
                         .HasColumnName("uid");
-
                     b.Property<DateTime>("createAt")
                         .HasMaxLength(200)
                         .HasColumnType("datetime2")

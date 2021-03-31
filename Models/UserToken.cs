@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -16,6 +17,10 @@ namespace TalktifAPI.Models
         [Column("token")]
         [StringLength(200)]
         public string Token { get; set; }
+        [Required]
+        [Column("create_at")]
+        [StringLength(200)]
+        public DateTime createAt { get; set; }
 
         [ForeignKey(nameof(User))]
         [InverseProperty("UserTokenUserNavigations")]

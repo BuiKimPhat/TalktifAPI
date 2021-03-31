@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -11,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TalktifAPI.Data;
 using TalktifAPI.Models;
@@ -33,8 +36,19 @@ namespace TalktifAPI
             (Configuration.GetConnectionString("TalktifConnection")));
             services.AddScoped<IUserRepo,UserRepo>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            services.AddScoped<IUserRepo, UserRepo>();
             services.AddControllers();
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                        //.AllowCredentials();
+                    }
+                );
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "TalktifAPI", Version = "v1" });
@@ -56,11 +70,13 @@ namespace TalktifAPI
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseCors();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
         }
+
     }
 }

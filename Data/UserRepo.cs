@@ -1,6 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using TalktifAPI.Dtos;
 using TalktifAPI.Models;
 using BC = BCrypt.Net.BCrypt;
@@ -52,9 +57,25 @@ namespace TalktifAPI.Data
                 throw new ArgumentNullException(nameof(user));
             }
             User read = _context.Users.FirstOrDefault(p => p.Email == user.Email);
-            if(true == BC.Verify(user.Password,read.Password))
-            return new ReadUserDto{Email = read.Email, Name = read.Name,Id = read.Id};
-            else return new ReadUserDto{Id = 0, Name = "Nguoi dung Talktif",Email="SignUpFailed@mail.com"};
+            if (true == BC.Verify(user.Password, read.Password) && read.IsActive == true)
+                return new ReadUserDto { Email = read.Email, Name = read.Name, Id = read.Id };
+            else return new ReadUserDto { Id = 0, Name = "Nguoi dung Talktif", Email = "SignUpFailed@mail.com" };
+        }
+
+        public List<ReadUserDto> getAllUser()
+        {
+            List<ReadUserDto> list = new List<ReadUserDto>();
+            try{
+            var read = _context.Users.Where(p => p.Id != 0);
+            foreach(var u in read){
+                list.Add(new ReadUserDto{
+                    Email =  u.Email, Name =  u.Name, Id =  u.Id 
+                });
+            }
+            } catch(Exception err){
+                Console.Write(err.ToString());
+            }
+            return list;
         }
     }
 }

@@ -15,6 +15,11 @@ namespace TalktifAPI.Models
         public int User { get; set; }
         [Column("favourite")]
         public int Favourite { get; set; }
+        [Column("nickname")]
+        public String NickName { get; set; }
+
+        [Column("addedAt")]
+        public DateTime AddAt { get; set; }
 
         [ForeignKey(nameof(User))]
         [InverseProperty("UserFavUserNavigations")]

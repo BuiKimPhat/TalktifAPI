@@ -28,7 +28,7 @@ namespace TalktifAPI.Models
             this.Name = Name;
             this.Email = Email;
             this.Password = Password;
-            IsActive = false;
+            IsActive = true;
             IsAdmin = false;
             CreatedAt = DateTime.Now;
         }
