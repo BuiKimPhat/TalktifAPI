@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace TalktifAPI.Dtos
@@ -12,5 +13,8 @@ namespace TalktifAPI.Dtos
         [Required]
         [StringLength(100)]
         public string Email { get; set; }
+        public bool Gender { get; set; }
+        public String Address { get; set; }
+        public string Hobbies { get; set; }
     }
 }

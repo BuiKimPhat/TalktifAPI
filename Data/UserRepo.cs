@@ -24,7 +24,8 @@ namespace TalktifAPI.Data
         public ReadUserDto getInfoByEmail(string email)
         {
             User user =_context.Users.FirstOrDefault(p => p.Email == email);
-            return new ReadUserDto{ Name = user.Name, Email= user.Email, Id = user.Id};
+            return new ReadUserDto{ Name = user.Name, Email= user.Email, Id = user.Id ,Gender = user.Gender,
+                                    Address = user.Address,Hobbies = user.Hobbies};
         }
 
         public bool isUserExists(string user)
@@ -46,7 +47,7 @@ namespace TalktifAPI.Data
                 throw new ArgumentNullException(nameof(user));
             }
             user.Password = BC.HashPassword(user.Password);
-            _context.Users.Add(new User(user.Name,user.Email,user.Password));
+            _context.Users.Add(new User(user.Name,user.Email,user.Password,user.Gender,user.Hobbies,user.Address));
             return user;
         }
 

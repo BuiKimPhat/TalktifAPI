@@ -70,6 +70,7 @@ namespace TalktifAPI
             app.UseRouting();
 
             app.UseAuthorization();
+            
             app.UseCors();
 
             app.UseEndpoints(endpoints =>

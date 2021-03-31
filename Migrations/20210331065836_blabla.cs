@@ -7,11 +7,6 @@ namespace TalktifAPI.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "User",
-                table: "UserToken",
-                type: "int",
-                nullable: true);
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "create_at",
@@ -37,9 +32,6 @@ namespace TalktifAPI.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "User",
-                table: "UserToken");
 
             migrationBuilder.DropColumn(
                 name: "create_at",

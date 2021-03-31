@@ -19,7 +19,7 @@ namespace TalktifAPI.Models
             UserTokenUserNavigations = new HashSet<UserToken>();
             UserFavUserNavigations = new HashSet<UserFav>();
         }
-        public User(string Name,string Email,String Password)
+        public User(string Name,string Email,String Password,bool gender,String hobbies,String address)
         {
             MessageFromNavigations = new HashSet<Message>();
             ReportReporterNavigations = new HashSet<Report>();
@@ -28,6 +28,9 @@ namespace TalktifAPI.Models
             this.Name = Name;
             this.Email = Email;
             this.Password = Password;
+            Gender = gender;
+            Hobbies = hobbies;
+            Address = address;
             IsActive = true;
             IsAdmin = false;
             CreatedAt = DateTime.Now;
@@ -47,6 +50,17 @@ namespace TalktifAPI.Models
         [Column("password")]
         [StringLength(100)]
         public string Password { get; set; }
+        [Required]
+        [Column("gender")]
+        public bool Gender { get; set; }
+        [Required]
+        [Column("address")]
+        [StringLength(100)]
+        public String Address { get; set; }
+        [Required]
+        [Column("hobbies")]
+        [StringLength(200)]
+        public String Hobbies { get; set; }
         public bool? IsAdmin { get; set; }
         [Column("isActive")]
         public bool? IsActive { get; set; }
