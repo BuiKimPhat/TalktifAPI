@@ -4,11 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using TalktifAPI.Data;
 using TalktifAPI.Dtos;
 using TalktifAPI.Models;
+using System.Text.Json;
 
 namespace TalktifAPI.Controllers
 {
     [Route("api/[controller]")]
-    //[Authorize]  
+    [Authorize]  
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -18,8 +19,9 @@ namespace TalktifAPI.Controllers
         {
             _repository = repository;
         }
+        [AllowAnonymous]
         [HttpPost]
-        [Route("~/api/Users/SignUp")]
+        [Route("SignUp")]
         public ActionResult<ReadUserDto> signUp(CreateUserDto user)
         {
             if(_repository.isUserExists(user.Email)) return new ReadUserDto{Id = 0, Name = "Nguoi dung Talktif",Email="SignUpFailed@mail.com"};
@@ -27,8 +29,9 @@ namespace TalktifAPI.Controllers
             _repository.saveChange();
             return Ok(_repository.getInfoByEmail(user.Email));
         }
+        [AllowAnonymous]
         [HttpPost]
-        [Route("~/api/Users/SignIn")]
+        [Route("SignIn")]
         public ActionResult<ReadUserDto> signIn(LoginUserDto user)
         {
             if(!_repository.isUserExists(user.Email)) return new ReadUserDto{Id = 0, Name = "Nguoi dung Talktif",Email="SignUpFailed@mail.com"};
@@ -38,14 +41,9 @@ namespace TalktifAPI.Controllers
         [Route("{email}")]
         public ActionResult<ReadUserDto> getUserInfo(string email)
         {
+
             if(email!=null) NotFound();
             return Ok(_repository.getInfoByEmail(email));
-        }
-        [HttpGet]
-        [Route("~/api/Admin/GetAllUser")]
-        public List<ReadUserDto> getAllUser()
-        {
-            return _repository.getAllUser();
         }
     }
 }

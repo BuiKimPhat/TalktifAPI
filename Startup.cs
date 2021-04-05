@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TalktifAPI.Data;
+using TalktifAPI.Middleware;
 using TalktifAPI.Models;
 
 namespace TalktifAPI
@@ -34,9 +35,18 @@ namespace TalktifAPI
         {
             services.AddDbContext<TalktifContext>(opt => opt.UseSqlServer
             (Configuration.GetConnectionString("TalktifConnection")));
+
             services.AddScoped<IUserRepo,UserRepo>();
+            services.AddScoped<IAdminRepo,AdminRepo>();
+
+             // configure strongly typed settings object
+            services.Configure<JwtConfig>(Configuration.GetSection("JwtConfig"));
+
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddControllers();
+
+            //services.AddTokenAuthentication(Configuration);  
+
             services.AddCors(options =>
             {
                 options.AddDefaultPolicy(
@@ -49,6 +59,7 @@ namespace TalktifAPI
                     }
                 );
             });
+            //luu thong tin version
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "TalktifAPI", Version = "v1" });
@@ -69,8 +80,11 @@ namespace TalktifAPI
 
             app.UseRouting();
 
-            app.UseAuthorization();
-            
+            // app.UseAuthorization();
+            // app.UseAuthentication();  
+
+            app.UseMiddleware<AuthenticationMiddleware>();
+
             app.UseCors();
 
             app.UseEndpoints(endpoints =>

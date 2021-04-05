@@ -23,7 +23,7 @@ namespace TalktifAPI.Data
 
         public ReadUserDto getInfoByEmail(string email)
         {
-            User user =_context.Users.FirstOrDefault(p => p.Email == email);
+            var user =_context.Users.FirstOrDefault(p => p.Email == email);
             return new ReadUserDto{ Name = user.Name, Email= user.Email, Id = user.Id ,Gender = user.Gender,
                                     Address = user.Address,Hobbies = user.Hobbies};
         }
@@ -59,24 +59,9 @@ namespace TalktifAPI.Data
             }
             User read = _context.Users.FirstOrDefault(p => p.Email == user.Email);
             if (true == BC.Verify(user.Password, read.Password) && read.IsActive == true)
-                return new ReadUserDto { Email = read.Email, Name = read.Name, Id = read.Id };
+                return new ReadUserDto { Email = read.Email, Name = read.Name, Id = read.Id ,
+                                            Gender= read.Gender, Hobbies = read.Hobbies, Address = read.Address};
             else return new ReadUserDto { Id = 0, Name = "Nguoi dung Talktif", Email = "SignUpFailed@mail.com" };
-        }
-
-        public List<ReadUserDto> getAllUser()
-        {
-            List<ReadUserDto> list = new List<ReadUserDto>();
-            try{
-            var read = _context.Users.Where(p => p.Id != 0);
-            foreach(var u in read){
-                list.Add(new ReadUserDto{
-                    Email =  u.Email, Name =  u.Name, Id =  u.Id 
-                });
-            }
-            } catch(Exception err){
-                Console.Write(err.ToString());
-            }
-            return list;
         }
     }
 }

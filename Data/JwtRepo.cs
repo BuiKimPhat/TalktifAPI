@@ -15,7 +15,7 @@ namespace TalktifAPI.Data
         public JwtRepo(IConfiguration config)  
         {  
             _secret = config.GetSection("JwtConfig").GetSection("secret").Value;  
-            _expDate = config.GetSection("JwtConfig").GetSection("expirationInDays").Value;  
+            _expDate = config.GetSection("JwtConfig").GetSection("expirationInHours").Value;  
         }  
   
         public string GenerateSecurityToken(string email)  
@@ -28,14 +28,22 @@ namespace TalktifAPI.Data
                 {  
                     new Claim(ClaimTypes.Email, email)  
                 }),  
-                Expires = DateTime.UtcNow.AddDays(double.Parse(_expDate)),  
+                IssuedAt = DateTime.Now,
+                Expires = DateTime.UtcNow.AddHours(double.Parse(_expDate)),  
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)  
             };  
   
             var token = tokenHandler.CreateToken(tokenDescriptor);  
-  
+            Console.WriteLine(token);
+            Console.WriteLine(DateTime.UtcNow.AddHours(double.Parse(_expDate))+" " + DateTime.Now+"");
             return tokenHandler.WriteToken(token);  
-  
         }  
+        // public string ValidateSecurityToken(string email)  
+        // {  
+        //     var tokenHandler = new JwtSecurityTokenHandler();  
+        //     var key = Encoding.ASCII.GetBytes(_secret);  
+        //     //tokenHandler.
+        //     //return tokenHandler.WriteToken(token);  
+        // }  
     }
 }

@@ -12,6 +12,5 @@ namespace TalktifAPI.Data
         ReadUserDto getInfoByEmail(string email);   
         CreateUserDto signUp(CreateUserDto user);
         ReadUserDto signIn(LoginUserDto user);
-        List<ReadUserDto> getAllUser();
     }
 }
