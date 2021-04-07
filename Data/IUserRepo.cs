@@ -10,7 +10,9 @@ namespace TalktifAPI.Data
         bool saveChange();
         bool isUserExists(string user);
         ReadUserDto getInfoByEmail(string email);   
-        CreateUserDto signUp(CreateUserDto user);
-        ReadUserDto signIn(LoginUserDto user);
+        LoginRespond signUp(SignUpRequest user);
+        LoginRespond signIn(LoginRequest user);
+        ReadUserDto updateInfo(UpdateInfoRequest user);
+        public bool inActiveUser(string email);
     }
 }

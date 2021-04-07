@@ -26,25 +26,28 @@ namespace TalktifAPI.Middleware
         public async Task Invoke(HttpContext context)
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-
+            var email = context.Request.Headers["Email"].FirstOrDefault();
             if (token != null)
-                attachUserToContext(context, token);
+                attachUserToContext(context, token,email);
 
             await _next(context);
         }
-         private void attachUserToContext(HttpContext context, string token)
+         private void attachUserToContext(HttpContext context, string token,string email)
         {
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes(_jwtConfig.secret);
+                var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+                string mail = jwtToken.Claims.First(claim => claim.Type == "Email").Value;
+                if(email==mail)
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = false,
-                    ValidateAudience = false, 
                 }, out SecurityToken validatedToken);
+                else throw new Exception("Invalid email!");
             }
             catch(Exception err)
             {               

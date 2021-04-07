@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace TalktifAPI.Data
 {
-    public class JwtRepo
+    public class JwtRepo : IJwtRepo
     {
         private readonly string _secret;  
         private readonly string _expDate;  
@@ -38,12 +38,5 @@ namespace TalktifAPI.Data
             Console.WriteLine(DateTime.UtcNow.AddHours(double.Parse(_expDate))+" " + DateTime.Now+"");
             return tokenHandler.WriteToken(token);  
         }  
-        // public string ValidateSecurityToken(string email)  
-        // {  
-        //     var tokenHandler = new JwtSecurityTokenHandler();  
-        //     var key = Encoding.ASCII.GetBytes(_secret);  
-        //     //tokenHandler.
-        //     //return tokenHandler.WriteToken(token);  
-        // }  
     }
 }

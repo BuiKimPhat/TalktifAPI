@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TalktifAPI.Dtos
 {
-    public class LoginUserDto {
+    public class LoginRequest {
         [Required]
         [StringLength(100)]
         public string Email { get; set; }

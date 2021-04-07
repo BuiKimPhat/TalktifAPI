@@ -5,6 +5,7 @@ using TalktifAPI.Data;
 using TalktifAPI.Dtos;
 using TalktifAPI.Models;
 using System.Text.Json;
+using System;
 
 namespace TalktifAPI.Controllers
 {
@@ -22,28 +23,60 @@ namespace TalktifAPI.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Route("SignUp")]
-        public ActionResult<ReadUserDto> signUp(CreateUserDto user)
+        public ActionResult<LoginRespond> signUp(SignUpRequest user)
         {
-            if(_repository.isUserExists(user.Email)) return new ReadUserDto{Id = 0, Name = "Nguoi dung Talktif",Email="SignUpFailed@mail.com"};
-            CreateUserDto u = _repository.signUp(user);
+            try{
+            LoginRespond r = _repository.signUp(user);
             _repository.saveChange();
-            return Ok(_repository.getInfoByEmail(user.Email));
+            return Ok(r);
+            }catch(Exception e){
+                Console.WriteLine(e.ToString());
+                return NoContent();
+            }
         }
         [AllowAnonymous]
         [HttpPost]
         [Route("SignIn")]
-        public ActionResult<ReadUserDto> signIn(LoginUserDto user)
+        public ActionResult<ReadUserDto> signIn(LoginRequest user)
         {
-            if(!_repository.isUserExists(user.Email)) return new ReadUserDto{Id = 0, Name = "Nguoi dung Talktif",Email="SignUpFailed@mail.com"};
-            return Ok(_repository.signIn(user));
+            try{
+            LoginRespond r = _repository.signIn(user);
+            return Ok(r);
+            }catch(Exception){
+                return NotFound();
+            }
         }
-        [HttpGet]
+        [HttpPost]
         [Route("{email}")]
         public ActionResult<ReadUserDto> getUserInfo(string email)
         {
-
+            try{
             if(email!=null) NotFound();
             return Ok(_repository.getInfoByEmail(email));
+            }catch(Exception){
+                return NotFound();
+            }
+        }
+        [HttpPost]
+        [Route("UpdateInfo")]
+        public ActionResult<ReadUserDto> updateUserInfo(UpdateInfoRequest update){
+            try{
+                return _repository.updateInfo(update);
+            }catch(Exception){
+                return NotFound();
+            }
+        }
+        [HttpGet]
+        [Route("InActiveUser")]
+        public ActionResult InActiveUser (string email){
+            try{
+                _repository.inActiveUser(email);
+                _repository.saveChange();
+                return Ok();
+            }catch(Exception e){
+                Console.WriteLine(e.Message);
+                return NotFound();
+            }
         }
     }
 }

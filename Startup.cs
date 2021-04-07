@@ -38,6 +38,7 @@ namespace TalktifAPI
 
             services.AddScoped<IUserRepo,UserRepo>();
             services.AddScoped<IAdminRepo,AdminRepo>();
+            services.AddScoped<IJwtRepo,JwtRepo>();
 
              // configure strongly typed settings object
             services.Configure<JwtConfig>(Configuration.GetSection("JwtConfig"));
