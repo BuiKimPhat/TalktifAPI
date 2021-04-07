@@ -20,14 +20,6 @@ namespace TalktifAPI.Controllers
             _repository = adminrepo;
             _config = configuration;
         }
-        [AllowAnonymous]
-        [HttpGet]  
-        public string GetRandomToken()  
-        {  
-            JwtRepo jwt = new JwtRepo(_config);  
-            var token = jwt.GenerateSecurityToken("fake@email.com");  
-            return token;  
-        }  
         [Authorize]
         [HttpGet]
         [Route("GetAllUser")]
