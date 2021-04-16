@@ -8,21 +8,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TalktifAPI.Models
 {
-    [Table("User_Favs")]
-    public partial class UserFav
+    [Table("User_ChatRoom")]
+    public partial class UserChatRoom
     {
+        [Key]
         [Column("user")]
         public int User { get; set; }
-        [Column("favourite")]
-        public int Favourite { get; set; }
-        [Column("nickname")]
-        public String NickName { get; set; }
+        [Key]
+        [Column("chatRoomId")]
+        public int ChatRoomId { get; set; }
 
-        [Column("addedAt")]
-        public DateTime AddAt { get; set; }
-
+        [ForeignKey(nameof(ChatRoomId))]
+        [InverseProperty("UserChatRooms")]
+        public virtual ChatRoom ChatRoom { get; set; }
         [ForeignKey(nameof(User))]
-        [InverseProperty("UserFavUserNavigations")]
+        [InverseProperty("UserChatRooms")]
         public virtual User UserNavigation { get; set; }
     }
 }

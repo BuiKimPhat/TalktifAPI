@@ -9,28 +9,27 @@ using Microsoft.EntityFrameworkCore;
 namespace TalktifAPI.Models
 {
     [Table("User")]
-    [Index(nameof(Email), Name = "UQ__User__AB6E6164410B6ED7", IsUnique = true)]
+    [Index(nameof(Email), Name = "UQ__User__AB6E616459FFB8D3", IsUnique = true)]
     public partial class User
     {
         public User()
         {
-            MessageFromNavigations = new HashSet<Message>();
-            ReportReporterNavigations = new HashSet<Report>();
-            UserTokenUserNavigations = new HashSet<UserToken>();
-            UserFavUserNavigations = new HashSet<UserFav>();
+            Messages = new HashSet<Message>();
+            Reports = new HashSet<Report>();
+            UserChatRooms = new HashSet<UserChatRoom>();
+            UserRefreshTokens = new HashSet<UserRefreshToken>();
         }
-        public User(string Name,string Email,String Password,bool gender,String hobbies,String address)
+        public User(string Name,string Email,String Password,bool gender,String hobbies)
         {
-            MessageFromNavigations = new HashSet<Message>();
-            ReportReporterNavigations = new HashSet<Report>();
-            UserTokenUserNavigations = new HashSet<UserToken>();
-            UserFavUserNavigations = new HashSet<UserFav>();
+            Messages = new HashSet<Message>();
+            Reports = new HashSet<Report>();
+            UserChatRooms = new HashSet<UserChatRoom>();
+            UserRefreshTokens = new HashSet<UserRefreshToken>();
             this.Name = Name;
             this.Email = Email;
             this.Password = Password;
             Gender = gender;
             Hobbies = hobbies;
-            Address = address;
             IsActive = true;
             IsAdmin = false;
             CreatedAt = DateTime.Now;
@@ -50,30 +49,25 @@ namespace TalktifAPI.Models
         [Column("password")]
         [StringLength(100)]
         public string Password { get; set; }
-        [Required]
         [Column("gender")]
-        public bool Gender { get; set; }
-        [Required]
-        [Column("address")]
-        [StringLength(100)]
-        public String Address { get; set; }
-        [Required]
+        public bool? Gender { get; set; }
         [Column("hobbies")]
-        [StringLength(200)]
-        public String Hobbies { get; set; }
+        [StringLength(1000)]
+        public string Hobbies { get; set; }
+        [Column("isAdmin")]
         public bool? IsAdmin { get; set; }
         [Column("isActive")]
         public bool? IsActive { get; set; }
         [Column("createdAt", TypeName = "datetime")]
         public DateTime? CreatedAt { get; set; }
 
-        [InverseProperty(nameof(Message.FromNavigation))]
-        public virtual ICollection<Message> MessageFromNavigations { get; set; }
+        [InverseProperty(nameof(Message.SenderNavigation))]
+        public virtual ICollection<Message> Messages { get; set; }
         [InverseProperty(nameof(Report.ReporterNavigation))]
-        public virtual ICollection<Report> ReportReporterNavigations { get; set; }
-        [InverseProperty(nameof(UserFav.UserNavigation))]
-        public virtual ICollection<UserFav> UserFavUserNavigations { get; set; }
-        [InverseProperty(nameof(UserToken.UserTokenNavigation))]
-        public virtual ICollection<UserToken> UserTokenUserNavigations { get; set; }
+        public virtual ICollection<Report> Reports { get; set; }
+        [InverseProperty(nameof(UserChatRoom.UserNavigation))]
+        public virtual ICollection<UserChatRoom> UserChatRooms { get; set; }
+        [InverseProperty(nameof(UserRefreshToken.UserNavigation))]
+        public virtual ICollection<UserRefreshToken> UserRefreshTokens { get; set; }
     }
 }

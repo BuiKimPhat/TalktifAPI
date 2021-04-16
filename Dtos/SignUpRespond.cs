@@ -1,10 +1,8 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using TalktifAPI.Models;
-
 namespace TalktifAPI.Dtos
 {
-    public class LoginRespond
+    public class SignUpRespond
     {
         [Required]
         public int Id { get; set; }
@@ -20,7 +18,7 @@ namespace TalktifAPI.Dtos
         public string Token {get; set;}
         [Required]
         public string RefreshToken {get; set;}
-        public LoginRespond(ReadUserDto user , string token,string refreshtoken)
+        public SignUpRespond(ReadUserDto user , string token,string refreshtoken)
         {
             Id = user.Id;
             Name = user.Name;

@@ -28,7 +28,7 @@ namespace TalktifAPI.Data
             var user =_context.Users.FirstOrDefault(p => p.Email == email);
             if(user!=null)
             return new ReadUserDto{ Name = user.Name, Email= user.Email, Id = user.Id ,Gender = user.Gender,
-                                    Address = user.Address,Hobbies = user.Hobbies};
+                                    Hobbies = user.Hobbies};
             throw new Exception();
         }
 
@@ -44,7 +44,7 @@ namespace TalktifAPI.Data
             return (_context.SaveChanges() >= 0);
         }
 
-        public LoginRespond signUp(SignUpRequest user)
+        public SignUpRespond signUp(SignUpRequest user)
         {
             if(!isUserExists(user.Email))
             {
@@ -53,13 +53,22 @@ namespace TalktifAPI.Data
                     throw new ArgumentNullException(nameof(user));
                 }
                 user.Password = BC.HashPassword(user.Password);
-                _context.Users.Add(new User(user.Name,user.Email,user.Password,user.Gender,user.Hobbies,user.Address));
+                _context.Users.Add(new User(user.Name,user.Email,user.Password,user.Gender,user.Hobbies));
+                _context.SaveChanges();
+                User read = _context.Users.FirstOrDefault(p => p.Email == user.Email);
                 string token = _JwtRepo.GenerateSecurityToken(user.Email);
-                return new LoginRespond(new ReadUserDto{ Email = user.Email, 
+                string refreshtoken = _JwtRepo.GenerateRefreshToken(user.Email);
+                _context.UserRefreshTokens.Add(new UserRefreshToken{
+                        User = read.Id,
+                        RefreshToken = refreshtoken,
+                        CreateAt = DateTime.Now,
+                        Device = user.Device
+                    });
+                return new SignUpRespond(new ReadUserDto{ Email = user.Email, 
                                                         Name = user.Name, 
                                                         Gender= user.Gender, 
-                                                        Hobbies = user.Hobbies, 
-                                                        Address = user.Address} , token);
+                                                        Hobbies = user.Hobbies,
+                                                        }, token,refreshtoken);
             }
             throw new Exception("Khong biet loi gi");
         }
@@ -72,14 +81,19 @@ namespace TalktifAPI.Data
                     throw new ArgumentNullException(nameof(user));
                 }
                 User read = _context.Users.FirstOrDefault(p => p.Email == user.Email);
-                string token = _JwtRepo.GenerateSecurityToken(read.Email);
-                if (true == BC.Verify(user.Password, read.Password) && read.IsActive == true)
-                    return new LoginRespond(new ReadUserDto { Email = read.Email,
-                                                            Name = read.Name,
-                                                            Id = read.Id ,
-                                                            Gender= read.Gender, 
-                                                            Hobbies = read.Hobbies, 
-                                                            Address = read.Address} , token);
+                if (true == BC.Verify(user.Password, read.Password) && read.IsActive == true){
+                    string token = _JwtRepo.GenerateSecurityToken(read.Email);
+                    string refreshtoken = _JwtRepo.GenerateRefreshToken(user.Email);
+                    _context.UserRefreshTokens.Add(new UserRefreshToken{
+                        User = read.Id,
+                        RefreshToken = refreshtoken,
+                        CreateAt = DateTime.Now,
+                        Device = user.Device
+                    });
+                    return new LoginRespond(new ReadUserDto { Email = read.Email, Name = read.Name,
+                                                            Id = read.Id , Gender= read.Gender, 
+                                                            Hobbies = read.Hobbies, }, token,refreshtoken);
+                }
                 else throw new Exception();
             }
             throw new Exception();
@@ -95,7 +109,7 @@ namespace TalktifAPI.Data
                                     Id = u.Id ,
                                     Gender= user.Gender, 
                                     Hobbies = user.Hobbies, 
-                                    Address = user.Address};
+                                    };
             }
             throw new Exception();
         }
