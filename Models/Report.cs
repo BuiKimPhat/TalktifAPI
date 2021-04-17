@@ -31,7 +31,7 @@ namespace TalktifAPI.Models
         public DateTime? CreatedAt { get; set; }
 
         [ForeignKey(nameof(Reporter))]
-        [InverseProperty(nameof(User.ReportReporterNavigations))]
+        [InverseProperty(nameof(User.Reports))]
         public virtual User ReporterNavigation { get; set; }
     }
 }

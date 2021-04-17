@@ -3,10 +3,25 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TalktifAPI.Migrations
 {
-    public partial class Init : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Chat_Room",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    chatRoomName = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
+                    numOfMember = table.Column<int>(type: "int", nullable: false),
+                    createdAt = table.Column<DateTime>(type: "datetime", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Chat_Room", x => x.id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "User",
                 columns: table => new
@@ -16,8 +31,10 @@ namespace TalktifAPI.Migrations
                     name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     email = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
                     password = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
-                    IsAdmin = table.Column<bool>(type: "bit", nullable: true, defaultValueSql: "((1))"),
-                    isActive = table.Column<bool>(type: "bit", nullable: true, defaultValueSql: "((1))"),
+                    gender = table.Column<bool>(type: "bit", nullable: false, defaultValueSql: "((1))"),
+                    hobbies = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    isAdmin = table.Column<bool>(type: "bit", nullable: false, defaultValueSql: "((1))"),
+                    isActive = table.Column<bool>(type: "bit", nullable: false, defaultValueSql: "((1))"),
                     createdAt = table.Column<DateTime>(type: "datetime", nullable: true)
                 },
                 constraints: table =>
@@ -31,8 +48,8 @@ namespace TalktifAPI.Migrations
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    from = table.Column<int>(type: "int", nullable: false),
-                    to = table.Column<int>(type: "int", nullable: false),
+                    sender = table.Column<int>(type: "int", nullable: false),
+                    chatRoomId = table.Column<int>(type: "int", nullable: false),
                     content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     sentAt = table.Column<DateTime>(type: "datetime", nullable: true)
                 },
@@ -40,8 +57,14 @@ namespace TalktifAPI.Migrations
                 {
                     table.PrimaryKey("PK_Message", x => x.id);
                     table.ForeignKey(
-                        name: "FK__Message__from__2D27B809",
-                        column: x => x.from,
+                        name: "FK__Message__chatRoo__7F2BE32F",
+                        column: x => x.chatRoomId,
+                        principalTable: "Chat_Room",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK__Message__sender__7E37BEF6",
+                        column: x => x.sender,
                         principalTable: "User",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
@@ -64,7 +87,7 @@ namespace TalktifAPI.Migrations
                 {
                     table.PrimaryKey("PK_Report", x => x.id);
                     table.ForeignKey(
-                        name: "FK__Report__reporter__30F848ED",
+                        name: "FK__Report__reporter__73BA3083",
                         column: x => x.reporter,
                         principalTable: "User",
                         principalColumn: "id",
@@ -72,17 +95,23 @@ namespace TalktifAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "User_Favs",
+                name: "User_ChatRoom",
                 columns: table => new
                 {
                     user = table.Column<int>(type: "int", nullable: false),
-                    favourite = table.Column<int>(type: "int", nullable: false)
+                    chatRoomId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK__User_Fav__A323CB9348DF7B6E", x => new { x.user, x.favourite });
+                    table.PrimaryKey("PK__User_Cha__4372E63A933B1139", x => new { x.user, x.chatRoomId });
                     table.ForeignKey(
-                        name: "FK__User_Favs__user__29572725",
+                        name: "FK__User_Chat__chatR__7B5B524B",
+                        column: x => x.chatRoomId,
+                        principalTable: "Chat_Room",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK__User_ChatR__user__7A672E12",
                         column: x => x.user,
                         principalTable: "User",
                         principalColumn: "id",
@@ -90,29 +119,36 @@ namespace TalktifAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserToken",
+                name: "User_RefreshToken",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    uid = table.Column<int>(type: "int", maxLength: 100, nullable: false),
-                    token = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
+                    user = table.Column<int>(type: "int", nullable: false),
+                    refreshToken = table.Column<string>(type: "varchar(1)", unicode: false, maxLength: 1, nullable: false),
+                    device = table.Column<string>(type: "varchar(1)", unicode: false, maxLength: 1, nullable: false),
+                    createAt = table.Column<DateTime>(type: "datetime", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK__User_Token__A323CB9448DF7B6E", x => x.id);
+                    table.PrimaryKey("PK_User_RefreshToken", x => x.id);
                     table.ForeignKey(
-                        name: "FK__User_Token__user__29572725",
-                        column: x => x.uid,
+                        name: "FK__User_Refre__user__628FA481",
+                        column: x => x.user,
                         principalTable: "User",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Message_from",
+                name: "IX_Message_chatRoomId",
                 table: "Message",
-                column: "from");
+                column: "chatRoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Message_sender",
+                table: "Message",
+                column: "sender");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Report_reporter",
@@ -120,15 +156,20 @@ namespace TalktifAPI.Migrations
                 column: "reporter");
 
             migrationBuilder.CreateIndex(
-                name: "UQ__User__AB6E6164410B6ED7",
+                name: "UQ__User__AB6E616459FFB8D3",
                 table: "User",
                 column: "email",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserToken_uid",
-                table: "UserToken",
-                column: "uid");
+                name: "IX_User_ChatRoom_chatRoomId",
+                table: "User_ChatRoom",
+                column: "chatRoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_User_RefreshToken_user",
+                table: "User_RefreshToken",
+                column: "user");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -140,10 +181,13 @@ namespace TalktifAPI.Migrations
                 name: "Report");
 
             migrationBuilder.DropTable(
-                name: "User_Favs");
+                name: "User_ChatRoom");
 
             migrationBuilder.DropTable(
-                name: "UserToken");
+                name: "User_RefreshToken");
+
+            migrationBuilder.DropTable(
+                name: "Chat_Room");
 
             migrationBuilder.DropTable(
                 name: "User");

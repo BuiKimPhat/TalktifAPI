@@ -9,5 +9,8 @@ namespace TalktifAPI.Dtos
         [Required]
         [StringLength(100)]
         public string Password { get; set; }
+        [Required]
+        [StringLength(1000)]
+        public string Device { get; set; }
     }
 }

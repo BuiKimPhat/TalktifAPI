@@ -23,16 +23,14 @@ namespace TalktifAPI.Middleware
             _next = next;
             this._jwtConfig = JwtConfig.Value;
         }
-        public async Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context,IUserRepo userRepo)
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-            var email = context.Request.Headers["Email"].FirstOrDefault();
             if (token != null)
-                attachUserToContext(context, token,email);
-
-            await _next(context);
+                attachUserToContext(context, token,userRepo);
+            await _next(context);           
         }
-         private void attachUserToContext(HttpContext context, string token,string email)
+         private void attachUserToContext(HttpContext context, string token,IUserRepo userRepo)
         {
             try
             {
@@ -40,60 +38,31 @@ namespace TalktifAPI.Middleware
                 var key = Encoding.ASCII.GetBytes(_jwtConfig.secret);
                 var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
                 string mail = jwtToken.Claims.First(claim => claim.Type == "Email").Value;
-                if(email==mail)
+                Console.WriteLine(mail);
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = false,
+                    ValidateLifetime = true
                 }, out SecurityToken validatedToken);
-                else throw new Exception("Invalid email!");
+                jwtToken = (JwtSecurityToken)validatedToken;
+                var userMail = jwtToken.Claims.First(claim => claim.Type == "Email").Value;;
+                // attach user to context on successful jwt validation
+                context.Items["User"] = userRepo.getInfoByEmail(userMail);   
+                context.Items["TokenExp"] = false; 
+            }
+            catch(SecurityTokenExpiredException err)
+            {          
+                context.Items["TokenExp"] = true;     
+                Console.WriteLine(err.Message);
             }
             catch(Exception err)
-            {               
+            {             
+                context.Items["TokenExp"] = false; 
+                context.Items["User"] = null;     
                 Console.WriteLine(err.Message);
             }
         }
-        // public static IServiceCollection AddTokenAuthentication(this IServiceCollection services, IConfiguration config)  
-        // {  
-        //     var secret = config.GetSection("JwtConfig").GetSection("secret").Value;  
-  
-        //     var key = Encoding.ASCII.GetBytes(secret);  
-        //     services.AddAuthentication(x =>  
-        //     {  
-        //         x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;  
-        //         x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;  
-        //     })  
-        //     .AddJwtBearer(x =>  
-        //     {  
-        //         x.TokenValidationParameters = new TokenValidationParameters  
-        //         {  
-        //             ValidateIssuer = true,    
-        //             ValidateAudience = true,    
-        //             ValidateLifetime = true,    
-        //             ValidateIssuerSigningKey = true,    
-        //             ValidIssuer = config["JwtConfig:Issuer"],    
-        //             ValidAudience = config["JwtConfig:Issuer"],    
-        //             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JwtConfig:secret"]))  
-        //         };  
-        //     });  
-        //     // config.Events = new JwtBearerEvents  
-        //     //  {  
-        //     //    OnAuthenticationFailed = context =>  
-        //     //  {  
-        //     //      services.WriteLine("OnAuthenticationFailed: " +   
-        //     //          context.Exception.Message);  
-        //     //      return Task.CompletedTask;  
-        //     //  },  
-        //     // OnTokenValidated = context =>  
-        //     // {  
-        //     //      Console.WriteLine("OnTokenValidated: " +   
-        //     //      context.SecurityToken);  
-        //     //      return Task.CompletedTask;  
-        //     // }  
-        // //  };  
-  
-        //     return services;  
-        // }  
     }
 }

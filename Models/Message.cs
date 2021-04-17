@@ -14,10 +14,10 @@ namespace TalktifAPI.Models
         [Key]
         [Column("id")]
         public int Id { get; set; }
-        [Column("from")]
-        public int From { get; set; }
-        [Column("to")]
-        public int To { get; set; }
+        [Column("sender")]
+        public int Sender { get; set; }
+        [Column("chatRoomId")]
+        public int ChatRoomId { get; set; }
         [Required]
         [Column("content")]
         [StringLength(1000)]
@@ -25,8 +25,11 @@ namespace TalktifAPI.Models
         [Column("sentAt", TypeName = "datetime")]
         public DateTime? SentAt { get; set; }
 
-        [ForeignKey(nameof(From))]
-        [InverseProperty(nameof(User.MessageFromNavigations))]
-        public virtual User FromNavigation { get; set; }
+        [ForeignKey(nameof(ChatRoomId))]
+        [InverseProperty("Messages")]
+        public virtual ChatRoom ChatRoom { get; set; }
+        [ForeignKey(nameof(Sender))]
+        [InverseProperty(nameof(User.Messages))]
+        public virtual User SenderNavigation { get; set; }
     }
 }

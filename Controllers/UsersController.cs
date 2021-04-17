@@ -6,11 +6,13 @@ using TalktifAPI.Dtos;
 using TalktifAPI.Models;
 using System.Text.Json;
 using System;
+using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 
 namespace TalktifAPI.Controllers
 {
-    [Route("api/[controller]")]
-    [Authorize]  
+    
+    [Route("api/[controller]")]  
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -20,44 +22,59 @@ namespace TalktifAPI.Controllers
         {
             _repository = repository;
         }
-        [AllowAnonymous]
-        [HttpPost]
+        [HttpPost]        
         [Route("SignUp")]
-        public ActionResult<LoginRespond> signUp(SignUpRequest user)
+        public ActionResult<SignUpRespond> signUp(SignUpRequest user)
         {
             try{
-            LoginRespond r = _repository.signUp(user);
-            _repository.saveChange();
-            return Ok(r);
+                SignUpRespond r = _repository.signUp(user);
+                _repository.saveChange();
+                setTokenCookie(r.RefreshToken);
+                return Ok(r);
             }catch(Exception e){
                 Console.WriteLine(e.ToString());
                 return NoContent();
             }
         }
-        [AllowAnonymous]
         [HttpPost]
         [Route("SignIn")]
         public ActionResult<ReadUserDto> signIn(LoginRequest user)
         {
             try{
-            LoginRespond r = _repository.signIn(user);
-            return Ok(r);
+                LoginRespond r = _repository.signIn(user);
+                if(r!=null) setTokenCookie(r.RefreshToken);
+                return Ok(r);
             }catch(Exception){
                 return NotFound();
             }
         }
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("ResetPass")]
+        public ActionResult<ReadUserDto> ResetPassword(LoginRequest user)
+        {
+            try{
+                LoginRespond r = _repository.signIn(user);
+                if(r!=null) setTokenCookie(r.RefreshToken);
+                return Ok(r);
+            }catch(Exception){
+                return NotFound();
+            }
+        }
+        [Authorize]
         [HttpPost]
         [Route("{email}")]
         public ActionResult<ReadUserDto> getUserInfo(string email)
         {
             try{
-            if(email!=null) NotFound();
-            return Ok(_repository.getInfoByEmail(email));
+                if(email == null) NotFound();
+                return Ok(_repository.getInfoByEmail(email));
             }catch(Exception){
                 return NotFound();
             }
         }
-        [HttpPost]
+        [Authorize]
+        [HttpPost]  
         [Route("UpdateInfo")]
         public ActionResult<ReadUserDto> updateUserInfo(UpdateInfoRequest update){
             try{
@@ -66,7 +83,8 @@ namespace TalktifAPI.Controllers
                 return NotFound();
             }
         }
-        [HttpGet]
+        [Authorize]
+        [HttpGet] 
         [Route("InActiveUser")]
         public ActionResult InActiveUser (string email){
             try{
@@ -77,6 +95,43 @@ namespace TalktifAPI.Controllers
                 Console.WriteLine(e.Message);
                 return NotFound();
             }
+        }
+        [AllowAnonymous]
+        [HttpGet] 
+        [Route("LogOut")]
+        public ActionResult LogOut(){
+            try{
+                var refreshToken = Request.Cookies["refreshToken"];
+                _repository.logOut(refreshToken);
+                _repository.saveChange();
+                return Ok();
+            }catch(Exception e){
+                Console.WriteLine(e.Message);
+                return NotFound();
+            }
+        }
+        [AllowAnonymous]
+        [HttpPost("refresh-token")]
+        public IActionResult RefreshToken(string email)
+        {
+            try{
+            var refreshToken = Request.Cookies["refreshToken"];
+            var response = _repository.RefreshToken(refreshToken,email);
+            _repository.saveChange();
+            setTokenCookie(response.RefreshToken);
+            return Ok(response);
+            }catch(Exception){
+                return Unauthorized();
+            }
+        }
+        private void setTokenCookie(string token)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTime.UtcNow.AddMonths(1)
+            };
+            Response.Cookies.Append("RefreshToken", token, cookieOptions);
         }
     }
 }

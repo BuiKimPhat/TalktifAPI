@@ -17,10 +17,12 @@ namespace TalktifAPI.Models
         {
         }
 
+        public virtual DbSet<ChatRoom> ChatRooms { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
         public virtual DbSet<Report> Reports { get; set; }
         public virtual DbSet<User> Users { get; set; }
-        public virtual DbSet<UserFav> UserFavs { get; set; }
+        public virtual DbSet<UserChatRoom> UserChatRooms { get; set; }
+        public virtual DbSet<UserRefreshToken> UserRefreshTokens { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -35,27 +37,40 @@ namespace TalktifAPI.Models
         {
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
 
+            modelBuilder.Entity<ChatRoom>(entity =>
+            {
+                entity.Property(e => e.ChatRoomName).IsUnicode(false);
+            });
+
             modelBuilder.Entity<Message>(entity =>
             {
-                entity.HasOne(d => d.FromNavigation)
-                    .WithMany(p => p.MessageFromNavigations)
-                    .HasForeignKey(d => d.From)
+                entity.HasOne(d => d.ChatRoom)
+                    .WithMany(p => p.Messages)
+                    .HasForeignKey(d => d.ChatRoomId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Message__from__2D27B809");
+                    .HasConstraintName("FK__Message__chatRoo__7F2BE32F");
+
+                entity.HasOne(d => d.SenderNavigation)
+                    .WithMany(p => p.Messages)
+                    .HasForeignKey(d => d.Sender)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Message__sender__7E37BEF6");
             });
 
             modelBuilder.Entity<Report>(entity =>
             {
                 entity.HasOne(d => d.ReporterNavigation)
-                    .WithMany(p => p.ReportReporterNavigations)
+                    .WithMany(p => p.Reports)
                     .HasForeignKey(d => d.Reporter)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Report__reporter__30F848ED");
+                    .HasConstraintName("FK__Report__reporter__73BA3083");
             });
 
             modelBuilder.Entity<User>(entity =>
             {
                 entity.Property(e => e.Email).IsUnicode(false);
+
+                entity.Property(e => e.Gender).HasDefaultValueSql("((1))");
 
                 entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
 
@@ -64,26 +79,35 @@ namespace TalktifAPI.Models
                 entity.Property(e => e.Password).IsUnicode(false);
             });
 
-            modelBuilder.Entity<UserFav>(entity =>
+            modelBuilder.Entity<UserChatRoom>(entity =>
             {
-                entity.HasKey(e => new { e.User, e.Favourite })
-                    .HasName("PK__User_Fav__A323CB9348DF7B6E");
+                entity.HasKey(e => new { e.User, e.ChatRoomId })
+                    .HasName("PK__User_Cha__4372E63A933B1139");
+
+                entity.HasOne(d => d.ChatRoom)
+                    .WithMany(p => p.UserChatRooms)
+                    .HasForeignKey(d => d.ChatRoomId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__User_Chat__chatR__7B5B524B");
+
                 entity.HasOne(d => d.UserNavigation)
-                    .WithMany(p => p.UserFavUserNavigations)
+                    .WithMany(p => p.UserChatRooms)
                     .HasForeignKey(d => d.User)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__User_Favs__user__29572725");
+                    .HasConstraintName("FK__User_ChatR__user__7A672E12");
             });
 
-            modelBuilder.Entity<UserToken>(entity =>
+            modelBuilder.Entity<UserRefreshToken>(entity =>
             {
-                entity.HasKey(e => new { e.Id })
-                    .HasName("PK__User_Token__A323CB9448DF7B6E");
-                entity.HasOne(d => d.UserTokenNavigation)
-                    .WithMany(p => p.UserTokenUserNavigations)
-                    .HasForeignKey(d => d.Uid)
+                entity.Property(e => e.Device).IsUnicode(false);
+
+                entity.Property(e => e.RefreshToken).IsUnicode(false);
+
+                entity.HasOne(d => d.UserNavigation)
+                    .WithMany(p => p.UserRefreshTokens)
+                    .HasForeignKey(d => d.User)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__User_Token__user__29572725");
+                    .HasConstraintName("FK__User_Refre__user__628FA481");
             });
 
             OnModelCreatingPartial(modelBuilder);
