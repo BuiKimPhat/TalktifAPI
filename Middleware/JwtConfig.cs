@@ -7,8 +7,6 @@ namespace TalktifAPI.Middleware
         public int expirationInHours { get; set; }
         public int expirationInMonths { get; set; }
         public string Issuer { get; set; }
-        public string Audiences { get; set; }
-        
-               
+        public string Audiences { get; set; }            
     }
 }

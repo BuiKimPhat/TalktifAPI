@@ -7,10 +7,11 @@ using TalktifAPI.Models;
 using System.Text.Json;
 using System;
 using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 
 namespace TalktifAPI.Controllers
 {
-    [Authorize]
+    
     [Route("api/[controller]")]  
     [ApiController]
     public class UsersController : ControllerBase
@@ -21,7 +22,6 @@ namespace TalktifAPI.Controllers
         {
             _repository = repository;
         }
-        [AllowAnonymous]
         [HttpPost]        
         [Route("SignUp")]
         public ActionResult<SignUpRespond> signUp(SignUpRequest user)
@@ -36,30 +36,44 @@ namespace TalktifAPI.Controllers
                 return NoContent();
             }
         }
-        [AllowAnonymous]
         [HttpPost]
         [Route("SignIn")]
         public ActionResult<ReadUserDto> signIn(LoginRequest user)
         {
             try{
                 LoginRespond r = _repository.signIn(user);
-                setTokenCookie(r.RefreshToken);
+                if(r!=null) setTokenCookie(r.RefreshToken);
                 return Ok(r);
             }catch(Exception){
                 return NotFound();
             }
         }
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("ResetPass")]
+        public ActionResult<ReadUserDto> ResetPassword(LoginRequest user)
+        {
+            try{
+                LoginRespond r = _repository.signIn(user);
+                if(r!=null) setTokenCookie(r.RefreshToken);
+                return Ok(r);
+            }catch(Exception){
+                return NotFound();
+            }
+        }
+        [Authorize]
         [HttpPost]
         [Route("{email}")]
         public ActionResult<ReadUserDto> getUserInfo(string email)
         {
             try{
-                if(email!=null) NotFound();
+                if(email == null) NotFound();
                 return Ok(_repository.getInfoByEmail(email));
             }catch(Exception){
                 return NotFound();
             }
         }
+        [Authorize]
         [HttpPost]  
         [Route("UpdateInfo")]
         public ActionResult<ReadUserDto> updateUserInfo(UpdateInfoRequest update){
@@ -69,6 +83,7 @@ namespace TalktifAPI.Controllers
                 return NotFound();
             }
         }
+        [Authorize]
         [HttpGet] 
         [Route("InActiveUser")]
         public ActionResult InActiveUser (string email){
@@ -81,22 +96,42 @@ namespace TalktifAPI.Controllers
                 return NotFound();
             }
         }
+        [AllowAnonymous]
+        [HttpGet] 
+        [Route("LogOut")]
+        public ActionResult LogOut(){
+            try{
+                var refreshToken = Request.Cookies["refreshToken"];
+                _repository.logOut(refreshToken);
+                _repository.saveChange();
+                return Ok();
+            }catch(Exception e){
+                Console.WriteLine(e.Message);
+                return NotFound();
+            }
+        }
+        [AllowAnonymous]
+        [HttpPost("refresh-token")]
+        public IActionResult RefreshToken(string email)
+        {
+            try{
+            var refreshToken = Request.Cookies["refreshToken"];
+            var response = _repository.RefreshToken(refreshToken,email);
+            _repository.saveChange();
+            setTokenCookie(response.RefreshToken);
+            return Ok(response);
+            }catch(Exception){
+                return Unauthorized();
+            }
+        }
         private void setTokenCookie(string token)
         {
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
-                Expires = DateTime.UtcNow.AddDays(7)
+                Expires = DateTime.UtcNow.AddMonths(1)
             };
             Response.Cookies.Append("RefreshToken", token, cookieOptions);
-        }
-
-        private string ipAddress()
-        {
-            if (Request.Headers.ContainsKey("X-Forwarded-For"))
-                return Request.Headers["X-Forwarded-For"];
-            else
-                return HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
         }
     }
 }

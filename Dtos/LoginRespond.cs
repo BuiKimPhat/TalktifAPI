@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using TalktifAPI.Models;
 
 namespace TalktifAPI.Dtos
@@ -19,6 +20,7 @@ namespace TalktifAPI.Dtos
         [Required]
         public string Token {get; set;}
         [Required]
+        [JsonIgnore]
         public string RefreshToken {get; set;}
         public LoginRespond(ReadUserDto user , string token,string refreshtoken)
         {

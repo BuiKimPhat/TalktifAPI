@@ -9,16 +9,14 @@ public class AuthorizeAttribute : Attribute, IAuthorizationFilter
 {
     public void OnAuthorization(AuthorizationFilterContext context)
     {
-        var check = (bool)context.HttpContext.Items["NeedRefreshToken"];
-        var user = (ReadUserDto)context.HttpContext.Items["User"];
-        if (user == null && check==true)
+        try{
+        var check = (bool)context.HttpContext.Items["TokenExp"];
+        var user = (ReadUserDto)context.HttpContext.Items["User"];   
+        if (check==true)
         {
-            //not logged in
             context.Result = new JsonResult(new { message = "Unauthorized, Token Exp" }) { StatusCode = StatusCodes.Status401Unauthorized };
         }
-        if (user == null && check==false)
-        {
-            //not logged in
+        }catch(Exception){
             context.Result = new JsonResult(new { message = "Unauthorized, Not Sign Up" }) { StatusCode = StatusCodes.Status401Unauthorized };
         }
     }

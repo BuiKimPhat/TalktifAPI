@@ -26,12 +26,8 @@ namespace TalktifAPI.Middleware
         public async Task Invoke(HttpContext context,IUserRepo userRepo)
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-            if (token != null){
+            if (token != null)
                 attachUserToContext(context, token,userRepo);
-                await _next(context);
-            }
-            context.Items["NeedRefreshToken"] = false;               
-            context.Items["User"] = null;
             await _next(context);           
         }
          private void attachUserToContext(HttpContext context, string token,IUserRepo userRepo)
@@ -42,6 +38,7 @@ namespace TalktifAPI.Middleware
                 var key = Encoding.ASCII.GetBytes(_jwtConfig.secret);
                 var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
                 string mail = jwtToken.Claims.First(claim => claim.Type == "Email").Value;
+                Console.WriteLine(mail);
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
@@ -52,17 +49,17 @@ namespace TalktifAPI.Middleware
                 jwtToken = (JwtSecurityToken)validatedToken;
                 var userMail = jwtToken.Claims.First(claim => claim.Type == "Email").Value;;
                 // attach user to context on successful jwt validation
-                context.Items["User"] = userRepo.getInfoByEmail(userMail);
-                context.Items["NeedRefreshToken"] = false;    
+                context.Items["User"] = userRepo.getInfoByEmail(userMail);   
+                context.Items["TokenExp"] = false; 
             }
             catch(SecurityTokenExpiredException err)
             {          
-                context.Items["RefreshToken"] = true;     
+                context.Items["TokenExp"] = true;     
                 Console.WriteLine(err.Message);
             }
             catch(Exception err)
-            {
-                context.Items["NeedRefreshToken"] = false;               
+            {             
+                context.Items["TokenExp"] = false; 
                 context.Items["User"] = null;     
                 Console.WriteLine(err.Message);
             }

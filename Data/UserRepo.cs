@@ -5,8 +5,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using TalktifAPI.Dtos;
+using TalktifAPI.Middleware;
 using TalktifAPI.Models;
 using BC = BCrypt.Net.BCrypt;
 
@@ -16,11 +18,13 @@ namespace TalktifAPI.Data
     {
         private readonly TalktifContext _context;
         private readonly IJwtRepo _JwtRepo;
+        private readonly JwtConfig _JwtConfig;
 
-        public UserRepo(TalktifContext context,IJwtRepo jwtRepo)
+        public UserRepo(TalktifContext context,IJwtRepo jwtRepo, IOptions<JwtConfig> JwtConfig)
         {
             _context = context;
             _JwtRepo = jwtRepo;
+            _JwtConfig = JwtConfig.Value;
         }
 
         public ReadUserDto getInfoByEmail(string email)
@@ -104,12 +108,8 @@ namespace TalktifAPI.Data
             User u = _context.Users.SingleOrDefault(p => p.Email == user.Email);
             if(u != null){
                 _context.Users.Update(u);
-            return new ReadUserDto { Email = user.Email,
-                                    Name = user.Name,
-                                    Id = u.Id ,
-                                    Gender= user.Gender, 
-                                    Hobbies = user.Hobbies, 
-                                    };
+            return new ReadUserDto { Email = user.Email,Name = user.Name,
+                                    Id = u.Id ,Gender= user.Gender, Hobbies = user.Hobbies, };
             }
             throw new Exception();
         }
@@ -121,6 +121,50 @@ namespace TalktifAPI.Data
                 return true;
             }
             throw new Exception("User doesn't exist!");
+        }
+        private bool ValidRefreshToken(string token,string ipAddress){
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_JwtConfig.secret2);
+                var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+                string mail = jwtToken.Claims.First(claim => claim.Type == "Email").Value;
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateLifetime = true
+                }, out SecurityToken validatedToken);
+                return true;
+            }catch(Exception){
+                return false;
+            }
+        }
+        public LoginRespond RefreshToken(string token,string email)
+        {
+            UserRefreshToken record = _context.UserRefreshTokens.SingleOrDefault(u => u.RefreshToken==token);
+            if (record == null) throw new Exception("Invalid Token");
+            if(ValidRefreshToken(token,email)) throw new SecurityTokenExpiredException();
+            record.RefreshToken = _JwtRepo.GenerateRefreshToken(email);          
+            _context.UserRefreshTokens.Update(record);
+            // generate new jwt
+            var jwtToken = _JwtRepo.GenerateSecurityToken(email);
+
+            return new LoginRespond(getInfoByEmail(email), jwtToken, record.RefreshToken);
+        }
+
+        public bool logOut(string token)
+        {
+            UserRefreshToken record = _context.UserRefreshTokens.SingleOrDefault(u => u.RefreshToken==token);
+            if(record == null) return false;
+            _context.UserRefreshTokens.Remove(record);
+            return true;
+        }
+
+        public LoginRespond resetPass(string email, string newpass)
+        {
+            throw new NotImplementedException();
         }
     }
 }
