@@ -164,7 +164,39 @@ namespace TalktifAPI.Data
 
         public LoginRespond resetPass(string email, string newpass)
         {
-            throw new NotImplementedException();
+            User user = _context.Users.SingleOrDefault(u => u.Email == email);
+            if(user == null){
+                throw new Exception("Wrong email");
+            }
+            user.Password = newpass;
+            _context.Users.Update(user);
+            var jwtToken = _JwtRepo.GenerateSecurityToken(email);
+
+            return new LoginRespond(getInfoByEmail(user.Email), jwtToken, null);
+        }
+
+        public List<UserChatRoom> FecthAllUserChatRoom(int userId)
+        {
+            List<UserChatRoom> chatroom = _context.UserChatRooms.Where(u => u.User == userId).ToList<UserChatRoom>();
+            if(chatroom == null)
+                throw new NullReferenceException();
+            return chatroom;
+        }
+
+        public bool AddMessage(string message,int idsender,int idChatRoom)
+        {
+            try{
+            _context.Messages.Add(new Message{
+                Sender = idsender,
+                ChatRoomId  = idChatRoom,
+                Content = message,
+                SentAt = DateTime.Now
+            });
+            return true;
+            }catch(Exception err){
+                Console.WriteLine(err.Message);
+                return false;
+            }
         }
     }
 }

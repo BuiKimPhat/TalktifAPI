@@ -16,6 +16,8 @@ namespace TalktifAPI.Data
         LoginRespond RefreshToken(string token,string email);
         bool inActiveUser(string email);
         bool logOut(string token);
+        List<UserChatRoom> FecthAllUserChatRoom(int userId);
+        bool AddMessage(string message,int idsender,int idChatRoom);
         LoginRespond resetPass(string email,string newpass);
     }
 }

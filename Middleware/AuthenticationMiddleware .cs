@@ -37,7 +37,7 @@ namespace TalktifAPI.Middleware
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes(_jwtConfig.secret);
                 var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
-                string mail = jwtToken.Claims.First(claim => claim.Type == "Email").Value;
+                string mail = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "Email").Value;
                 Console.WriteLine(mail);
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
@@ -55,13 +55,13 @@ namespace TalktifAPI.Middleware
             catch(SecurityTokenExpiredException err)
             {          
                 context.Items["TokenExp"] = true;     
-                Console.WriteLine(err.Message);
+                Console.WriteLine(err.Message+" 1");
             }
             catch(Exception err)
             {             
                 context.Items["TokenExp"] = false; 
                 context.Items["User"] = null;     
-                Console.WriteLine(err.Message);
+                Console.WriteLine(err.Message+" 2");
             }
         }
     }

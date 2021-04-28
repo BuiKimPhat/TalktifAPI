@@ -48,17 +48,16 @@ namespace TalktifAPI.Controllers
                 return NotFound();
             }
         }
-        [AllowAnonymous]
         [HttpPost]
         [Route("ResetPass")]
-        public ActionResult<ReadUserDto> ResetPassword(LoginRequest user)
+        public ActionResult<ReadUserDto> ResetPassword(ResetPassRequest user)
         {
             try{
-                LoginRespond r = _repository.signIn(user);
-                if(r!=null) setTokenCookie(r.RefreshToken);
+                LoginRespond r = _repository.resetPass(user.Email,user.NewPass);
+                _repository.saveChange();
                 return Ok(r);
             }catch(Exception){
-                return NotFound();
+                return BadRequest();
             }
         }
         [Authorize]
@@ -94,6 +93,18 @@ namespace TalktifAPI.Controllers
             }catch(Exception e){
                 Console.WriteLine(e.Message);
                 return NotFound();
+            }
+        }
+        [Authorize]
+        [HttpGet] 
+        [Route("FetchUserChatRoom")]
+        public ActionResult FetchUserChatRoom (int userId){
+            try{
+                List<UserChatRoom> rooms= _repository.FecthAllUserChatRoom(userId);
+                return Ok(rooms);
+            }catch(Exception e){
+                Console.WriteLine(e.Message);
+                return BadRequest();
             }
         }
         [AllowAnonymous]
