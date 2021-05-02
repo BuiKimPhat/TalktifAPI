@@ -70,5 +70,21 @@ namespace TalktifAPI.Data
             if(list != null) return list;
             else throw new Exception("Khong co tin nhan nao");
         }
+
+        public bool AddMessage(string message, int idsender, int idChatRoom)
+        {
+            try{
+            _context.Messages.Add(new Message{
+                Sender = idsender,
+                ChatRoomId  = idChatRoom,
+                Content = message,
+                SentAt = DateTime.Now
+            });
+            return true;
+            }catch(Exception err){
+                Console.WriteLine(err.Message);
+                return false;
+            }
+        }
     }
 }

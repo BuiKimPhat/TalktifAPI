@@ -43,6 +43,7 @@ namespace TalktifAPI.Controllers
             try{
                 LoginRespond r = _repository.signIn(user);
                 if(r!=null) setTokenCookie(r.RefreshToken);
+                _repository.saveChange();
                 return Ok(r);
             }catch(Exception){
                 return NotFound();
@@ -95,43 +96,15 @@ namespace TalktifAPI.Controllers
                 return NotFound();
             }
         }
-        [Authorize]
-        [HttpGet] 
-        [Route("FetchUserChatRoom")]
-        public ActionResult FetchUserChatRoom (int userId){
-            try{
-                List<UserChatRoom> rooms= _repository.FecthAllUserChatRoom(userId);
-                return Ok(rooms);
-            }catch(Exception e){
-                Console.WriteLine(e.Message);
-                return BadRequest();
-            }
-        }
-        [AllowAnonymous]
-        [HttpGet] 
-        [Route("LogOut")]
-        public ActionResult LogOut(){
-            try{
-                var refreshToken = Request.Cookies["refreshToken"];
-                _repository.logOut(refreshToken);
-                _repository.saveChange();
-                return Ok();
-            }catch(Exception e){
-                Console.WriteLine(e.Message);
-                return NotFound();
-            }
-        }
-        [AllowAnonymous]
         [HttpPost("refresh-token")]
-        public IActionResult RefreshToken(string email)
+        public IActionResult RefreshToken(RefreshTokenRequest request)
         {
             try{
-            var refreshToken = Request.Cookies["refreshToken"];
-            var response = _repository.RefreshToken(refreshToken,email);
+            var refreshToken = Request.Cookies["RefreshToken"].ToString();
+            var response = _repository.RefreshToken(refreshToken,request.email);
             _repository.saveChange();
-            setTokenCookie(response.RefreshToken);
             return Ok(response);
-            }catch(Exception){
+            }catch(Exception e){
                 return Unauthorized();
             }
         }

@@ -11,5 +11,6 @@ namespace TalktifAPI.Data
         bool CreateChatRoom(CreateChatRoomRequest r);
         bool DeleteChatRoom(int idchatroom);
         bool ChangeNickName(ChangeNickNameRequest r);
+        bool AddMessage(string message,int idsender,int idChatRoom);
     }
 }

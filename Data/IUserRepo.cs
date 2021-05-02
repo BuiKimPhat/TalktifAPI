@@ -13,11 +13,8 @@ namespace TalktifAPI.Data
         SignUpRespond signUp(SignUpRequest user);
         LoginRespond signIn(LoginRequest user);
         ReadUserDto updateInfo(UpdateInfoRequest user);
-        LoginRespond RefreshToken(string token,string email);
+        RefreshTokenRespond RefreshToken(string token,string email);
         bool inActiveUser(string email);
-        bool logOut(string token);
-        List<UserChatRoom> FecthAllUserChatRoom(int userId);
-        bool AddMessage(string message,int idsender,int idChatRoom);
         LoginRespond resetPass(string email,string newpass);
     }
 }
