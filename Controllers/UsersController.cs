@@ -61,8 +61,8 @@ namespace TalktifAPI.Controllers
                 return BadRequest();
             }
         }
-        [Authorize]
         [HttpPost]
+        [Authorize]
         [Route("{email}")]
         public ActionResult<ReadUserDto> getUserInfo(string email)
         {
@@ -105,6 +105,7 @@ namespace TalktifAPI.Controllers
             _repository.saveChange();
             return Ok(response);
             }catch(Exception e){
+                Console.Write(e.Message);
                 return Unauthorized();
             }
         }

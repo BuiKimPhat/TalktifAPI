@@ -7,10 +7,12 @@ namespace TalktifAPI.Data
     public interface IChatRepo
     {
         bool SaveChange();
-        List<Message> FecthAllMessageInChatRoom(int idchatroom);
+        List<MessageRespond> FecthAllMessageInChatRoom(FetchMessageRequest request);
+        List<FetchAllChatRoomRespond> FetchAllChatRoom(int id);
+        GetChatRoomInfoRespond GetChatRoomInfo(int roomid);
         bool CreateChatRoom(CreateChatRoomRequest r);
         bool DeleteChatRoom(int idchatroom);
         bool ChangeNickName(ChangeNickNameRequest r);
-        bool AddMessage(string message,int idsender,int idChatRoom);
+        bool AddMessage(AddMessageRequest mess);
     }
 }

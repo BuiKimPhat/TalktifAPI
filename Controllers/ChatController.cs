@@ -17,15 +17,17 @@ namespace TalktifAPI.Controllers
         {
             _repository = repository;
         }
-        [HttpPost]   
+        [HttpGet]   
         [Authorize]     
         [Route("CreateChatRoom")]
         public ActionResult Create(CreateChatRoomRequest createChatRoom)
         {
             try{
                 bool check =_repository.CreateChatRoom(createChatRoom);
-                _repository.SaveChange();
-                if(check==true) return Ok();
+                if(check==true){ 
+                    _repository.SaveChange();
+                    return Ok();
+                }
                 else return NoContent();
             }catch(Exception e){
                 Console.WriteLine(e.ToString()+"createchatroom err");
@@ -34,15 +36,61 @@ namespace TalktifAPI.Controllers
         }
         [HttpPost]   
         [Authorize]     
-        [Route("{userid}")]
-        public ActionResult<List<Message>> FetchAllChatRoom(int userid)
+        [Route("FetchAllChatRoom/{userid}")]
+        public ActionResult<List<FetchAllChatRoomRespond>> FetchAllChatRoom(int userid)
         {
             try{
-                List<Message> list =_repository.FecthAllMessageInChatRoom(userid);
+                List<FetchAllChatRoomRespond> list =_repository.FetchAllChatRoom(userid);
                 if(list!=null) return Ok(list);
                 else return BadRequest();
             }catch(Exception e){
                 Console.WriteLine(e.ToString()+"createchatroom err");
+                return BadRequest();
+            }
+        }
+
+        [HttpPost]   
+        [Authorize]     
+        [Route("FetchMessage")]
+        public ActionResult<List<MessageRespond>> FecthMessage(FetchMessageRequest request)
+        {
+            try{
+                List<MessageRespond> list =_repository.FecthAllMessageInChatRoom(request);
+                if(list!=null) return Ok(list);
+                else return BadRequest();
+            }catch(Exception e){
+                Console.WriteLine(e.ToString()+"fecth err");
+                return BadRequest();
+            }
+        } 
+        [HttpPost]   
+        [Authorize]     
+        [Route("GetChatRoomInfo/{roomid}")]
+        public ActionResult<GetChatRoomInfoRespond> GetChatRoomInfo(int roomid)
+        {
+            try{
+                GetChatRoomInfoRespond g =_repository.GetChatRoomInfo(roomid);
+                if(g!=null) return Ok(g);
+                else return BadRequest();
+            }catch(Exception e){
+                Console.WriteLine(e.ToString()+"\n get info err");
+                return BadRequest();
+            }
+        }
+        [HttpPost]   
+        [Authorize]     
+        [Route("AddMessage")]
+        public ActionResult<GetChatRoomInfoRespond> AddMessage(AddMessageRequest mess)
+        {
+            try{
+                bool check =_repository.AddMessage(mess);
+                if( check!=false ){
+                    _repository.SaveChange();
+                    return Ok();
+                }
+                else return BadRequest();
+            }catch(Exception e){
+                Console.WriteLine(e.ToString()+"\n get info err");
                 return BadRequest();
             }
         }

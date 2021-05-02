@@ -166,20 +166,5 @@ namespace TalktifAPI.Data
 
             return new LoginRespond(getInfoByEmail(user.Email), jwtToken, null);
         }
-        public bool AddMessage(string message,int idsender,int idChatRoom)
-        {
-            try{
-            _context.Messages.Add(new Message{
-                Sender = idsender,
-                ChatRoomId  = idChatRoom,
-                Content = message,
-                SentAt = DateTime.Now
-            });
-            return true;
-            }catch(Exception err){
-                Console.WriteLine(err.Message);
-                return false;
-            }
-        }
     }
 }

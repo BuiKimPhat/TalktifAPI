@@ -25,31 +25,33 @@ namespace TalktifAPI.Middleware
         }
         public async Task Invoke(HttpContext context,IUserRepo userRepo)
         {
-            var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-            if (token != null)
-                attachUserToContext(context, token,userRepo);
-            await _next(context);           
+            try{
+                var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                if (token != null)
+                    attachUserToContext(context, token,userRepo);
+                await _next(context);         
+            }catch(Exception e){
+                Console.WriteLine(e.Message);
+            }
         }
          private void attachUserToContext(HttpContext context, string token,IUserRepo userRepo)
         {
             try
             {
-                var tokenHandler = new JwtSecurityTokenHandler();
+                JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes(_jwtConfig.secret);
-                var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
-                string mail = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "Email").Value;
-                Console.WriteLine(mail);
+                JwtSecurityToken jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+                string mail = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "email").Value;
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateLifetime = true
+                    ValidateIssuer = false,  
+                    ValidateAudience = false,
+                    RequireExpirationTime = true
                 }, out SecurityToken validatedToken);
                 jwtToken = (JwtSecurityToken)validatedToken;
-                var userMail = jwtToken.Claims.First(claim => claim.Type == "Email").Value;;
-                // attach user to context on successful jwt validation
-                context.Items["User"] = userRepo.getInfoByEmail(userMail);   
+                context.Items["User"] = userRepo.getInfoByEmail(mail);   
                 context.Items["TokenExp"] = false; 
             }
             catch(SecurityTokenExpiredException err)
