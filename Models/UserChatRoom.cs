@@ -18,6 +18,10 @@ namespace TalktifAPI.Models
         [Column("chatRoomId")]
         public int ChatRoomId { get; set; }
 
+        [Column("nickname")]
+        [StringLength(100)]
+        public string NickName { get; set; }
+
         [ForeignKey(nameof(ChatRoomId))]
         [InverseProperty("UserChatRooms")]
         public virtual ChatRoom ChatRoom { get; set; }

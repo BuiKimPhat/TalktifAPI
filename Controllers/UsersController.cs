@@ -43,26 +43,26 @@ namespace TalktifAPI.Controllers
             try{
                 LoginRespond r = _repository.signIn(user);
                 if(r!=null) setTokenCookie(r.RefreshToken);
+                _repository.saveChange();
                 return Ok(r);
             }catch(Exception){
                 return NotFound();
             }
         }
-        [AllowAnonymous]
         [HttpPost]
         [Route("ResetPass")]
-        public ActionResult<ReadUserDto> ResetPassword(LoginRequest user)
+        public ActionResult<ReadUserDto> ResetPassword(ResetPassRequest user)
         {
             try{
-                LoginRespond r = _repository.signIn(user);
-                if(r!=null) setTokenCookie(r.RefreshToken);
+                LoginRespond r = _repository.resetPass(user.Email,user.NewPass);
+                _repository.saveChange();
                 return Ok(r);
             }catch(Exception){
-                return NotFound();
+                return BadRequest();
             }
         }
-        [Authorize]
         [HttpPost]
+        [Authorize]
         [Route("{email}")]
         public ActionResult<ReadUserDto> getUserInfo(string email)
         {
@@ -96,31 +96,16 @@ namespace TalktifAPI.Controllers
                 return NotFound();
             }
         }
-        [AllowAnonymous]
-        [HttpGet] 
-        [Route("LogOut")]
-        public ActionResult LogOut(){
-            try{
-                var refreshToken = Request.Cookies["refreshToken"];
-                _repository.logOut(refreshToken);
-                _repository.saveChange();
-                return Ok();
-            }catch(Exception e){
-                Console.WriteLine(e.Message);
-                return NotFound();
-            }
-        }
-        [AllowAnonymous]
         [HttpPost("refresh-token")]
-        public IActionResult RefreshToken(string email)
+        public IActionResult RefreshToken(RefreshTokenRequest request)
         {
             try{
-            var refreshToken = Request.Cookies["refreshToken"];
-            var response = _repository.RefreshToken(refreshToken,email);
+            var refreshToken = Request.Cookies["RefreshToken"].ToString();
+            var response = _repository.RefreshToken(refreshToken,request.email);
             _repository.saveChange();
-            setTokenCookie(response.RefreshToken);
             return Ok(response);
-            }catch(Exception){
+            }catch(Exception e){
+                Console.Write(e.Message);
                 return Unauthorized();
             }
         }

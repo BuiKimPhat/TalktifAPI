@@ -122,13 +122,14 @@ namespace TalktifAPI.Data
             }
             throw new Exception("User doesn't exist!");
         }
-        private bool ValidRefreshToken(string token,string ipAddress){
+        private bool ValidRefreshToken(string token,string email){
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes(_JwtConfig.secret2);
                 var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
                 string mail = jwtToken.Claims.First(claim => claim.Type == "Email").Value;
+                if(email != mail) throw new Exception();
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
@@ -141,30 +142,29 @@ namespace TalktifAPI.Data
                 return false;
             }
         }
-        public LoginRespond RefreshToken(string token,string email)
+        public RefreshTokenRespond RefreshToken(string token,string email)
         {
-            UserRefreshToken record = _context.UserRefreshTokens.SingleOrDefault(u => u.RefreshToken==token);
+            UserRefreshToken record = _context.UserRefreshTokens.FirstOrDefault(u => u.RefreshToken==token);
             if (record == null) throw new Exception("Invalid Token");
             if(ValidRefreshToken(token,email)) throw new SecurityTokenExpiredException();
-            record.RefreshToken = _JwtRepo.GenerateRefreshToken(email);          
+            record.RefreshToken = _JwtRepo.GenerateRefreshToken(email);   
             _context.UserRefreshTokens.Update(record);
-            // generate new jwt
             var jwtToken = _JwtRepo.GenerateSecurityToken(email);
-
-            return new LoginRespond(getInfoByEmail(email), jwtToken, record.RefreshToken);
+            return new RefreshTokenRespond{
+                Token = jwtToken
+            };
         }
-
-        public bool logOut(string token)
-        {
-            UserRefreshToken record = _context.UserRefreshTokens.SingleOrDefault(u => u.RefreshToken==token);
-            if(record == null) return false;
-            _context.UserRefreshTokens.Remove(record);
-            return true;
-        }
-
         public LoginRespond resetPass(string email, string newpass)
         {
-            throw new NotImplementedException();
+            User user = _context.Users.SingleOrDefault(u => u.Email == email);
+            if(user == null){
+                throw new Exception("Wrong email");
+            }
+            user.Password = BC.HashPassword(newpass);
+            _context.Users.Update(user);
+            var jwtToken = _JwtRepo.GenerateSecurityToken(email);
+
+            return new LoginRespond(getInfoByEmail(user.Email), jwtToken, null);
         }
     }
 }
