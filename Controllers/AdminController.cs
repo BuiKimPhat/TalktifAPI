@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using TalktifAPI.Data;
 using TalktifAPI.Dtos;
+using TalktifAPI.Models;
 
 namespace TalktifAPI.Controllers
 {
@@ -20,12 +21,12 @@ namespace TalktifAPI.Controllers
             _repository = adminrepo;
             _config = configuration;
         }
-        [Authorize]
+        [Authorize(Role.Admin)]
         [HttpGet]
         [Route("GetAllUser")]
-        public List<ReadUserDto> getAllUser()
+        public List<ReadUserDto> getAllUser(GetAllUserRequest request)
         {
-            return _repository.GetAllUser();
+            return _repository.GetAllUser(request);
         }
     }
 }

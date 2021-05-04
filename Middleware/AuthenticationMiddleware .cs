@@ -10,6 +10,7 @@ using TalktifAPI.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System;
 using Microsoft.Extensions.Options;
+using TalktifAPI.Dtos;
 
 namespace TalktifAPI.Middleware
 {
@@ -23,18 +24,18 @@ namespace TalktifAPI.Middleware
             _next = next;
             this._jwtConfig = JwtConfig.Value;
         }
-        public async Task Invoke(HttpContext context,IUserRepo userRepo)
+        public async Task Invoke(HttpContext context,IUserRepo userRepo,IAdminRepo adminRepo)
         {
             try{
                 var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
                 if (token != null)
-                    attachUserToContext(context, token,userRepo);
+                    attachUserToContext(context, token,userRepo,adminRepo);
                 await _next(context);         
             }catch(Exception e){
                 Console.WriteLine(e.Message);
             }
         }
-         private void attachUserToContext(HttpContext context, string token,IUserRepo userRepo)
+         private void attachUserToContext(HttpContext context, string token,IUserRepo userRepo,IAdminRepo adminRepo)
         {
             try
             {
@@ -51,7 +52,9 @@ namespace TalktifAPI.Middleware
                     RequireExpirationTime = true
                 }, out SecurityToken validatedToken);
                 jwtToken = (JwtSecurityToken)validatedToken;
-                context.Items["User"] = userRepo.getInfoByEmail(mail);   
+                ReadUserDto r = userRepo.getInfoByEmail(mail);
+                context.Items["User"] = r;  
+                context.Items["IsAdmin"] = adminRepo.IsAdmin(r.Id)?1:0;
                 context.Items["TokenExp"] = false; 
             }
             catch(SecurityTokenExpiredException err)

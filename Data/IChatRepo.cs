@@ -11,7 +11,7 @@ namespace TalktifAPI.Data
         List<FetchAllChatRoomRespond> FetchAllChatRoom(int id);
         GetChatRoomInfoRespond GetChatRoomInfo(int roomid);
         bool CreateChatRoom(CreateChatRoomRequest r);
-        bool DeleteChatRoom(int idchatroom);
+        bool DeleteChatRoom(DeleteFriendRequest room);
         bool ChangeNickName(ChangeNickNameRequest r);
         bool AddMessage(AddMessageRequest mess);
     }

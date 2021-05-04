@@ -52,13 +52,14 @@ namespace TalktifAPI.Data
             }
         }
 
-        public bool DeleteChatRoom(int idchatroom)
+        public bool DeleteChatRoom(DeleteFriendRequest room)
         {
             try{
-                ChatRoom r  = _context.ChatRooms.FirstOrDefault(r => r.Id == idchatroom); 
+                ChatRoom r  = _context.ChatRooms.FirstOrDefault(r => r.Id == room.RoomId); 
                 int i = r.NumOfMember;
+                if(_context.UserChatRooms.FirstOrDefault(r => r.ChatRoomId == room.RoomId && r.User==room.UserId)==null) return false;
                 do{
-                    _context.UserChatRooms.Remove(_context.UserChatRooms.First(r => r.ChatRoomId == idchatroom));
+                    _context.UserChatRooms.Remove(_context.UserChatRooms.FirstOrDefault(r => r.ChatRoomId == room.RoomId));
                     _context.SaveChanges();
                     i--;
                 }while(i>0);

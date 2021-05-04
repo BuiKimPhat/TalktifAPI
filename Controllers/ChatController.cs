@@ -94,5 +94,22 @@ namespace TalktifAPI.Controllers
                 return BadRequest();
             }
         }
+        [HttpDelete]   
+        [Authorize]     
+        [Route("Delete")]
+        public ActionResult<GetChatRoomInfoRespond> DeleteFriend(DeleteFriendRequest mess)
+        {
+            try{
+                bool check =_repository.DeleteChatRoom(mess);
+                if( check!=false ){
+                    _repository.SaveChange();
+                    return Ok();
+                }
+                else return BadRequest();
+            }catch(Exception e){
+                Console.WriteLine(e.ToString()+"\n delete err");
+                return BadRequest();
+            }
+        }
     }
 }
