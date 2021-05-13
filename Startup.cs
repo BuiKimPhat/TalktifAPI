@@ -18,6 +18,8 @@ using Microsoft.OpenApi.Models;
 using TalktifAPI.Data;
 using TalktifAPI.Middleware;
 using TalktifAPI.Models;
+using TalktifAPI.Repository;
+using TalktifAPI.Service;
 
 namespace TalktifAPI
 {
@@ -36,10 +38,23 @@ namespace TalktifAPI
             services.AddDbContext<TalktifContext>(opt => opt.UseSqlServer
             (Configuration.GetConnectionString("TalktifConnection")));
 
+            //old
             services.AddScoped<IUserRepo,UserRepo>();
             services.AddScoped<IAdminRepo,AdminRepo>();
             services.AddScoped<IChatRepo,ChatRepo>();
             services.AddScoped<IJwtRepo,JwtRepo>();
+            //new
+            services.AddScoped<IUserService,UserService>();
+            services.AddScoped<IJwtService,JwtService>();
+            services.AddScoped<IChatService,ChatService>();
+            services.AddScoped<IAdminService,AdminService>();
+            services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
+            services.AddScoped<IUserRepository,UserRepository>();
+            services.AddScoped<IMessageRepository,MessageRepository>();
+            services.AddScoped<IUserChatRoomRepository,UserChatRoomRepository>();
+            services.AddScoped<IChatRoomRepository,ChatRoomRepository>();
+            services.AddScoped<IReportRepository,ReportRepository>();
+            services.AddScoped<IUserRefreshTokenRepository,UserRefreshTokenRepository>();
 
              // configure strongly typed settings object
             services.Configure<JwtConfig>(Configuration.GetSection("JwtConfig"));

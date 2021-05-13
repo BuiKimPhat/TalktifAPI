@@ -42,7 +42,7 @@ namespace TalktifAPI.Middleware
                 JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes(_jwtConfig.secret);
                 JwtSecurityToken jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
-                string mail = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "email").Value;
+                string role = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "role").Value;
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
@@ -52,20 +52,19 @@ namespace TalktifAPI.Middleware
                     RequireExpirationTime = true
                 }, out SecurityToken validatedToken);
                 jwtToken = (JwtSecurityToken)validatedToken;
-                ReadUserDto r = userRepo.getInfoByEmail(mail);
-                context.Items["User"] = r;  
-                context.Items["IsAdmin"] = adminRepo.IsAdmin(r.Id)?1:0;
+                context.Items["IsAdmin"] = role=="Admin"?1:0;
                 context.Items["TokenExp"] = false; 
             }
             catch(SecurityTokenExpiredException err)
             {          
-                context.Items["TokenExp"] = true;     
+                context.Items["TokenExp"] = true; 
+                context.Items["IsAdmin"] = 0;    
                 Console.WriteLine(err.Message+" 1");
             }
             catch(Exception err)
             {             
-                context.Items["TokenExp"] = false; 
-                context.Items["User"] = null;     
+                context.Items["TokenExp"] = true;  
+                context.Items["IsAdmin"] = 0;    
                 Console.WriteLine(err.Message+" 2");
             }
         }

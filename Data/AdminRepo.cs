@@ -18,17 +18,17 @@ namespace TalktifAPI.Data
 
         public List<GetReportRespond> GetAllReport(GetAllReportRequest request)
         {
-            throw new NotImplementedException();
-        }
-
-        public List<ReadUserDto> GetAllUser()
-        {
-            List<ReadUserDto> list = new List<ReadUserDto>();
+            List<GetReportRespond> list = new List<GetReportRespond>();
+            if(request.From < request.To) throw new Exception("Out of Index");
             try{
-            var read = _context.Users.Where(p => p.Id != 0);
+            var read = _context.Reports.OrderByDescending(p => p.Id).Take(request.To);
+            int dem = 0;
             foreach(var u in read){
-                list.Add(new ReadUserDto{
-                    Email =  u.Email, Name =  u.Name, Id =  u.Id 
+                dem++;
+                if(dem < request.From) continue;
+                list.Add(new GetReportRespond{
+                    Id =  u.Id, Reporter =  u.Reporter, Reason =  u.Reason,
+                    Suspect = u.Suspect , Status = u.Status , Note = u.Note
                 });
             }
             }catch(Exception err){
@@ -39,7 +39,22 @@ namespace TalktifAPI.Data
 
         public List<ReadUserDto> GetAllUser(GetAllUserRequest request)
         {
-            throw new NotImplementedException();
+            List<ReadUserDto> list = new List<ReadUserDto>();
+            if(request.From < request.To) throw new Exception("Out of Index");
+            try{
+            var read = _context.Users.Where(p => p.Id != 0);
+            int dem=0; 
+            foreach(var u in read){
+                dem++;
+                if(dem < request.From) continue;
+                list.Add(new ReadUserDto{
+                    Email =  u.Email, Name =  u.Name, Id =  u.Id 
+                });
+            }
+            }catch(Exception err){
+                Console.Write(err.ToString());
+            }
+            return list;
         }
 
         public bool IsAdmin(int id)
@@ -51,7 +66,36 @@ namespace TalktifAPI.Data
 
         public bool UpdateReport(UpdateReportRequest request)
         {
-            throw new NotImplementedException();
+            try{
+            var read = _context.Reports.FirstOrDefault(p => p.Id == request.Id);
+            if(read!=null){
+                read.Note = request.Note;
+                read.Status = request.Status;
+                return true;
+            }
+            return false;
+            }catch(Exception e){
+                Console.Write(e.Message);
+                return false;
+            }
+        }
+
+        public bool UpdateUser(UpdateUserRequest request)
+        {
+            try{
+            var read = _context.Users.FirstOrDefault(p => p.Id == request.Id);
+            if(read!=null){
+                read.Name = request.Name;
+                read.Email = request.Email;
+                read.Gender = request.Gender;
+                read.Hobbies = request.Hobbies;
+                return true;
+            }
+            return false;
+            }catch(Exception e){
+                Console.Write(e.Message);
+                return false;
+            }
         }
     }
 }

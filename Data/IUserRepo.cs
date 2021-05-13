@@ -9,12 +9,12 @@ namespace TalktifAPI.Data
     {
         bool saveChange();
         bool isUserExists(string user);
-        ReadUserDto getInfoByEmail(string email);   
+        ReadUserDto getInfoById(int id);   
         SignUpRespond signUp(SignUpRequest user);
         LoginRespond signIn(LoginRequest user);
         ReadUserDto updateInfo(UpdateInfoRequest user);
         RefreshTokenRespond RefreshToken(string token,string email);
-        bool inActiveUser(string email);
+        bool inActiveUser(int id);
         LoginRespond resetPass(string email,string newpass);
     }
 }

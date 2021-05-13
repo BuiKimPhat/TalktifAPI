@@ -22,7 +22,7 @@ namespace TalktifAPI.Data
             _expMonth = config.GetSection("JwtConfig").GetSection("expirationInMonths").Value;  
         }
 
-        public string GenerateRefreshToken(string email)
+        public string GenerateRefreshToken(int id)
         {
             var tokenHandler = new JwtSecurityTokenHandler();  
             var key = Encoding.ASCII.GetBytes(_secret2);  
@@ -30,7 +30,7 @@ namespace TalktifAPI.Data
             {  
                 Subject = new ClaimsIdentity(new[]  
                 {  
-                    new Claim(ClaimTypes.Email, email)  
+                    new Claim(ClaimTypes.Email, id.ToString())  
                 }),  
                 IssuedAt = DateTime.Now,
                 Expires = DateTime.UtcNow.AddHours(double.Parse(_expMonth)),  
@@ -41,7 +41,7 @@ namespace TalktifAPI.Data
             return tokenHandler.WriteToken(token);  
         }
 
-        public string GenerateSecurityToken(string email)  
+        public string GenerateSecurityToken(int id)  
         {  
             var tokenHandler = new JwtSecurityTokenHandler();  
             var key = Encoding.ASCII.GetBytes(_secret);  
@@ -49,7 +49,7 @@ namespace TalktifAPI.Data
             {  
                 Subject = new ClaimsIdentity(new[]  
                 {  
-                    new Claim(ClaimTypes.Email, email)  
+                    new Claim(ClaimTypes.Email, id.ToString())  
                 }),  
                 IssuedAt = DateTime.Now,
                 Expires = DateTime.UtcNow.AddHours(double.Parse(_expDate)),  

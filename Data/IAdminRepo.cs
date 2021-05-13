@@ -10,6 +10,7 @@ namespace TalktifAPI.Data
         List<ReadUserDto> GetAllUser(GetAllUserRequest request);
         List<GetReportRespond> GetAllReport(GetAllReportRequest request);
         bool UpdateReport(UpdateReportRequest request);
+        bool UpdateUser(UpdateUserRequest request);
         bool IsAdmin(int id);
     }
 }
