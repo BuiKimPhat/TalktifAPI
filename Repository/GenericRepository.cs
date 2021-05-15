@@ -98,5 +98,10 @@ namespace TalktifAPI.Repository
                 throw new Exception(_errorMessage, dbEx);
             }
         }
+
+        public int Count()
+        {
+            return Entities.Count();
+        }
     }
 }

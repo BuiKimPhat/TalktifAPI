@@ -51,41 +51,31 @@ namespace TalktifAPI.Service
         }
         public List<GetReportRespond> GetAllReport(GetAllReportRequest request)
         {
+            int count = _reportRepository.Count();
             List<GetReportRespond> list = new List<GetReportRespond>();
-            if(request.From < request.To) throw new Exception("Out of Index");
-            try{
-            var read = _reportRepository.GetAllReport(request.To,request.OderBy);
-            int dem = 0;
-            foreach(var u in read){
-                dem++;
-                if(dem < request.From) continue;
+            if(request.From < request.To || count < request.From || count < request.To ) throw new IndexOutOfRangeException();
+            var read = _reportRepository.GetAllReport(count - request.To,request.OderBy);
+            Report[] a = read.ToArray();           
+            for(int i=count - request.From;i<count - request.To;i++){
                 list.Add(new GetReportRespond{
-                    Id =  u.Id, Reporter =  u.Reporter, Reason =  u.Reason,
-                    Suspect = u.Suspect , Status = u.Status , Note = u.Note
+                    Id =  a[i].Id, Reporter =  a[i].Reporter, Reason =  a[i].Reason,
+                    Suspect = a[i].Suspect , Status = a[i].Status , Note = a[i].Note
                 });
-            }
-            }catch(Exception err){
-                Console.Write(err.ToString());
             }
             return list;
         }
 
         public List<ReadUserDto> GetAllUser(GetAllUserRequest request)
         {
+            int count = _userRepository.Count();
             List<ReadUserDto> list = new List<ReadUserDto>();
-            if(request.From < request.To) throw new Exception("Out of Index");
-            try{
-            List<User> read = _userRepository.GetAllUSer(request.To,request.OderBy);
-            int dem=0; 
-            foreach(var u in read){
-                dem++;
-                if(dem < request.From) continue;
+            if(request.From < request.To || count < request.From || count < request.To) throw new IndexOutOfRangeException();
+            List<User> read = _userRepository.GetAllUSer(count - request.To,request.OderBy);
+            User[] a = read.ToArray();           
+            for(int i=count - request.From;i<count - request.To;i++){
                 list.Add(new ReadUserDto{
-                    Email =  u.Email, Name =  u.Name, Id =  u.Id 
+                    Email =  a[i].Email, Name =  a[i].Name, Id =  a[i].Id 
                 });
-            }
-            }catch(Exception err){
-                Console.Write(err.ToString());
             }
             return list;
         }
@@ -140,6 +130,16 @@ namespace TalktifAPI.Service
             return new ReadUserDto{ Id = read.Id, Email = user.Email,IsActive = read.IsActive,
                                     Name = user.Name,IsAdmin = read.IsAdmin, 
                                     Gender= user.Gender, Hobbies = user.Hobbies};
+        }
+
+        public Counts GetNumOfReCord()
+        {
+            return new Counts{
+                numOfUser = _userRepository.Count(),
+                numOfChatRoom = _chatRoomRepository.Count(),
+                numOfMessage = _messageRepository.Count(),
+                numOfReport = _reportRepository.Count()
+            };
         }
     }
 }

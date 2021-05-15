@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TalktifAPI.Data;
 using TalktifAPI.Dtos;
 using TalktifAPI.Models;
 using System.Text.Json;

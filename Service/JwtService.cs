@@ -110,6 +110,7 @@ namespace TalktifAPI.Service
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = false,
+                    ValidateAudience = false,
                     ValidateLifetime = true
                 }, out SecurityToken validatedToken);
                 return true;

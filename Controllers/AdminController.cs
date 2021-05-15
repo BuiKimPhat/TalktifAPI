@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;  
 using Microsoft.Extensions.Configuration;
-using TalktifAPI.Data;
 using TalktifAPI.Dtos;
 using TalktifAPI.Dtos.Admin;
 using TalktifAPI.Models;
@@ -26,13 +25,25 @@ namespace TalktifAPI.Controllers
         }
         [Authorize(Role.Admin)]
         [HttpGet]
+        [Route("Count")]
+        public ActionResult<Counts> Count(){
+            try{              
+                return Ok(_adminService.GetNumOfReCord());
+            }
+            catch(Exception e){
+                Console.WriteLine(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
+        [Authorize(Role.Admin)]
+        [HttpGet]
         [Route("GetAllUser")]
         public ActionResult<List<ReadUserDto>> getAllUser(GetAllUserRequest request)
         {
             try{
             return Ok(_adminService.GetAllUser(request));
             }catch(Exception e){
-                Console.Write(e.Message);
+                Console.WriteLine(e.Message);
                 return BadRequest(e.Message);
             }
         }
@@ -44,12 +55,12 @@ namespace TalktifAPI.Controllers
             try{
             return Ok(_adminService.GetAllReport(request));
             }catch(Exception e){
-                Console.Write(e.Message);
+                Console.WriteLine(e.Message);
                 return BadRequest(e.Message);
             }
         }
         [Authorize(Role.Admin)]
-        [HttpPost]
+        [HttpPut]
         [Route("UpdateReport")]
         public ActionResult UpdateReport(UpdateReportRequest request)
         {
@@ -78,7 +89,7 @@ namespace TalktifAPI.Controllers
         }
         [Authorize(Role.Admin)]
         [HttpDelete]
-        [Route("UpdateUser/{id}")]
+        [Route("DeleteUser/{id}")]
         public ActionResult DeleteUser(int id)
         {
             try{

@@ -1,7 +1,6 @@
 using System;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using TalktifAPI.Data;
 using TalktifAPI.Dtos;
 using TalktifAPI.Dtos.User;
 using TalktifAPI.Middleware;

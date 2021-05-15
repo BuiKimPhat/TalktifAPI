@@ -15,7 +15,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using TalktifAPI.Data;
 using TalktifAPI.Middleware;
 using TalktifAPI.Models;
 using TalktifAPI.Repository;
@@ -38,11 +37,6 @@ namespace TalktifAPI
             services.AddDbContext<TalktifContext>(opt => opt.UseSqlServer
             (Configuration.GetConnectionString("TalktifConnection")));
 
-            //old
-            services.AddScoped<IUserRepo,UserRepo>();
-            services.AddScoped<IAdminRepo,AdminRepo>();
-            services.AddScoped<IChatRepo,ChatRepo>();
-            services.AddScoped<IJwtRepo,JwtRepo>();
             //new
             services.AddScoped<IUserService,UserService>();
             services.AddScoped<IJwtService,JwtService>();

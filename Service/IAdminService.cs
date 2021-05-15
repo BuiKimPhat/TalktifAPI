@@ -14,5 +14,6 @@ namespace TalktifAPI.Service
         bool DeleteUser(int id);
         bool DeleteNonReferenceChatRoom();
         ReadUserDto CreateUser(SignUpRequest user);
+        Counts GetNumOfReCord();
     }
 }
