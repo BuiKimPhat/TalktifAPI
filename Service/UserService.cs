@@ -139,5 +139,23 @@ namespace TalktifAPI.Service
             return new ReadUserDto { Email = user.Email,Name = user.Name,
                                     Id = u.Id ,Gender= user.Gender, IsAdmin = u.IsAdmin,  Hobbies = user.Hobbies, };
         }
-    }
+        public bool ActiveEmail(string token, int id)
+        {
+            if(CheckToken(token,id)){
+                UserRefreshToken t = _tokenService.GetById(id);
+                User u = _userService.GetById(t.User);
+                u.ConfirmedEmail = true;
+                _userService.Update(u);
+                return true;
+            }
+            return false;
+        }
+
+        public bool CheckToken(string token, int id)
+        {
+            UserRefreshToken t = _tokenService.GetById(id);
+            if( t!= null && token.Equals(t.RefreshToken)) return true;
+            return false;
+        }
+    }   
 }

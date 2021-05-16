@@ -14,5 +14,7 @@ namespace TalktifAPI.Service
         RefreshTokenRespond RefreshToken(ReFreshToken token);
         bool inActiveUser(int id);
         LoginRespond resetPass(string email,string newpass);
+        bool ActiveEmail(string token,int id);
+        bool CheckToken(string token,int id);
     }
 }

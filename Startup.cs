@@ -37,6 +37,8 @@ namespace TalktifAPI
             services.AddDbContext<TalktifContext>(opt => opt.UseSqlServer
             (Configuration.GetConnectionString("TalktifConnection")));
 
+            services.AddTransient<IEmailService, EmailService>();
+
             //new
             services.AddScoped<IUserService,UserService>();
             services.AddScoped<IJwtService,JwtService>();
@@ -52,6 +54,7 @@ namespace TalktifAPI
 
              // configure strongly typed settings object
             services.Configure<JwtConfig>(Configuration.GetSection("JwtConfig"));
+            services.Configure<MailConfig>(Configuration.GetSection("MailConfig"));
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddControllers();

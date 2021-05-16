@@ -18,10 +18,12 @@ namespace TalktifAPI.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _service;
+        private readonly IEmailService _emailService;
 
-        public UsersController(IUserService service)
+        public UsersController(IUserService service,IEmailService emailService)
         {
             _service = service;
+            _emailService = emailService;
         }
         [HttpPost]        
         [Route("SignUp")]
@@ -29,6 +31,12 @@ namespace TalktifAPI.Controllers
         {
             try{
                 SignUpRespond r = _service.signUp(user);
+                MailContent content = new MailContent {
+                    To = user.Email,
+                    Subject = "Confirm Email",
+                    Body = "<h3><strong>Xin chào "+user.Name+" </strong></h3><p>Cảm ơn bạn vừa đăng ký tài khoản Talktif, bấm vào link sao để hoàn tất đăng ký <a href= \" https://talktifapi.azurewebsites.net/api/user/ActiveEmail?id="+r.RefreshTokenId+"?token="+r.RefreshToken+"\">: Link</a></p>"
+                };
+                _emailService.SendMail(content);
                 setTokenCookie(r.RefreshToken,r.RefreshTokenId);
                 return Ok(r);
             }catch(Exception e){
@@ -50,13 +58,42 @@ namespace TalktifAPI.Controllers
         }
         [HttpPost]
         [Route("ResetPass")]
-        public ActionResult<ReadUserDto> ResetPassword(ResetPassRequest user)
+        public ActionResult ResetPassword(ResetPassRequest user)
         {
             try{
-                LoginRespond r = _service.resetPass(user.Email,user.NewPass);
-                return Ok(r);
+                MailContent content = new MailContent {
+                    To = user.Email,
+                    Subject = "Reset Password Email",
+                    Body = "<h3><strong>Xin chào</strong></h3><p>Bạn vừa thay đổi mật  khẩu tài khoản Talktif, bấm vào link sao để xác nhận thay đổi <a href= \"https://talktifapi.azurewebsites.net/api/user/ReserPasswordEmail?pass="+user.NewPass+"?email="+user.Email+"\">: Link</a></p>"
+                };
+                _emailService.SendMail(content);
+                return Ok();
             }catch(Exception){
                 return BadRequest();
+            }
+        }
+        [HttpGet]
+        [Route("ActiveEmail")]
+        public ActionResult ActiveEmail(int id,string token){
+            try{
+                if(_service.ActiveEmail(token,id)){
+                    return Ok();
+                }
+                else return Unauthorized();
+            }catch(Exception e){
+                Console.WriteLine(e.Message);
+                return Unauthorized();
+            }
+        }
+        [HttpGet]
+        [Route("ReserPasswordEmail")]
+        public ActionResult<ReadUserDto> ResetPasswordEmail(string pass,string email){
+            try{
+                LoginRespond r = _service.resetPass(email,pass);
+                return Ok(r);
+            }catch(Exception e){
+                Console.WriteLine(e.Message);
+                return Unauthorized();
             }
         }
         [HttpPost]

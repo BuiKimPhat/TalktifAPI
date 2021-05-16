@@ -131,6 +131,10 @@ namespace TalktifAPI.Migrations
                         .HasColumnName("id")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<bool?>("ConfirmedEmail")
+                        .HasColumnType("bit")
+                        .HasColumnName("confirmedEmail");
+
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime")
                         .HasColumnName("createdAt");

@@ -29,6 +29,7 @@ namespace TalktifAPI.Models
             Gender = gender;
             Hobbies = hobbies;
             IsActive = true;
+            ConfirmedEmail = false;
             IsAdmin = false;
             CreatedAt = DateTime.Now;
         }
@@ -43,6 +44,7 @@ namespace TalktifAPI.Models
             Gender = gender;
             Hobbies = hobbies;
             IsActive = true;
+            ConfirmedEmail = true;
             IsAdmin = isAdmin;
             CreatedAt = DateTime.Now;
         }
@@ -68,6 +70,8 @@ namespace TalktifAPI.Models
         public string Hobbies { get; set; }
         [Column("isAdmin")]
         public bool? IsAdmin { get; set; }
+        [Column("confirmedEmail")]
+        public bool? ConfirmedEmail { get; set; }
         [Column("isActive")]
         public bool? IsActive { get; set; }
         [Column("createdAt", TypeName = "datetime")]

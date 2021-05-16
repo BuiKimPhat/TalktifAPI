@@ -138,3 +138,6 @@ E:\Learnning\PBL 3\TalktifAPI\bin\Debug\net5.0\AutoMapper.dll
 E:\Learnning\PBL 3\TalktifAPI\bin\Debug\net5.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
 E:\Learnning\PBL 3\TalktifAPI\bin\Debug\net5.0\BCrypt.Net-Next.dll
 E:\Learnning\PBL 3\TalktifAPI\bin\Debug\net5.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+E:\Learnning\PBL 3\TalktifAPI\bin\Debug\net5.0\MailKit.dll
+E:\Learnning\PBL 3\TalktifAPI\bin\Debug\net5.0\MimeKit.dll
+E:\Learnning\PBL 3\TalktifAPI\bin\Debug\net5.0\BouncyCastle.Crypto.dll
