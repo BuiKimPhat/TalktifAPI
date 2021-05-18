@@ -95,7 +95,7 @@ namespace TalktifAPI.Service
         { 
             User read = _userService.GetUserByEmail(user.Email);
             if(read==null) throw new Exception();
-            if (true == BC.Verify(user.Password, read.Password) && read.IsActive == true){
+            if (true == BC.Verify(user.Password, read.Password) && read.IsActive == true && read.ConfirmedEmail==true){
                 string token = _jwtService.GenerateSecurityToken((bool)read.IsAdmin);
                 string refreshtoken = _jwtService.GenerateRefreshToken((bool)read.IsAdmin);
                 _tokenService.Insert(new UserRefreshToken{
@@ -156,6 +156,14 @@ namespace TalktifAPI.Service
             UserRefreshToken t = _tokenService.GetById(id);
             if( t!= null && token.Equals(t.RefreshToken)) return true;
             return false;
+        }
+
+        public ReadUserDto getInfoByEmail(string email)
+        {
+            User user = _userService.GetUserByEmail(email);
+            if(user==null) throw new Exception("user doesn't exist!");
+            return new ReadUserDto{ Name = user.Name, Email= user.Email, Id = user.Id ,Gender = user.Gender,
+                                     IsAdmin = user.IsAdmin, IsActive = user.IsActive, Hobbies = user.Hobbies};
         }
     }   
 }

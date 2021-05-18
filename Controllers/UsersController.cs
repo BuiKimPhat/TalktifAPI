@@ -31,17 +31,18 @@ namespace TalktifAPI.Controllers
         {
             try{
                 SignUpRespond r = _service.signUp(user);
-                MailContent content = new MailContent {
-                    To = user.Email,
-                    Subject = "Confirm Email",
-                    Body = "<h3><strong>Xin chào "+user.Name+" </strong></h3><p>Cảm ơn bạn vừa đăng ký tài khoản Talktif, bấm vào link sao để hoàn tất đăng ký <a href= \" https://talktifapi.azurewebsites.net/api/user/ActiveEmail?id="+r.RefreshTokenId+"?token="+r.RefreshToken+"\">: Link</a></p>"
-                };
-                _emailService.SendMail(content);
-                setTokenCookie(r.RefreshToken,r.RefreshTokenId);
+                // MailContent content = new MailContent {
+                //     To = user.Email,
+                //     Subject = "Confirm Email",
+                //     Body = "<h3><strong>Xin chào "+user.Name+" </strong></h3><p>Cảm ơn bạn vừa đăng ký tài khoản Talktif, nhập mã code này để hoàn tấy đăng ký : " + r.RefreshTokenId + ""  + r.RefreshToken+"</p>"
+                // };
+                // Console.WriteLine(content.Body);
+                // _emailService.SendMail(content);
+                if(r!=null) setTokenCookie(r.RefreshToken,r.RefreshTokenId);
                 return Ok(r);
             }catch(Exception e){
                 Console.WriteLine(e.ToString());
-                return NoContent();
+                return BadRequest(e);
             }
         }
         [HttpPost]
@@ -53,7 +54,8 @@ namespace TalktifAPI.Controllers
                 if(r!=null) setTokenCookie(r.RefreshToken,r.RefreshTokenId);
                 return Ok(r);
             }catch(Exception e){
-                return BadRequest(e.Message);
+                 Console.WriteLine(e.ToString());
+                return BadRequest(e);
             }
         }
         [HttpPost]
@@ -61,35 +63,40 @@ namespace TalktifAPI.Controllers
         public ActionResult ResetPassword(ResetPassRequest user)
         {
             try{
-                MailContent content = new MailContent {
-                    To = user.Email,
-                    Subject = "Reset Password Email",
-                    Body = "<h3><strong>Xin chào</strong></h3><p>Bạn vừa thay đổi mật  khẩu tài khoản Talktif, bấm vào link sao để xác nhận thay đổi <a href= \"https://talktifapi.azurewebsites.net/api/user/ReserPasswordEmail?pass="+user.NewPass+"?email="+user.Email+"\">: Link</a></p>"
-                };
-                _emailService.SendMail(content);
+                //var u = _service.getInfoByEmail(user.Email);
+                if(_service.getInfoByEmail(user.Email)==null) throw new Exception("Email is not exist");
+                // Random random = new Random();
+                // int num = random.Next(1000,9999);
+                // MailContent content = new MailContent {
+                //     To = user.Email,
+                //     Subject = "Reset Password Email",
+                //     Body = "<h3><strong>Xin chào</strong></h3><p>Bạn vừa thay đổi mật  khẩu tài khoản Talktif, mã xác nhận của bạn là : "+num+"</p>"
+                // };
+                // _emailService.SendMail(content);
                 return Ok();
-            }catch(Exception){
-                return BadRequest();
-            }
-        }
-        [HttpGet]
-        [Route("ActiveEmail")]
-        public ActionResult ActiveEmail(int id,string token){
-            try{
-                if(_service.ActiveEmail(token,id)){
-                    return Ok();
-                }
-                else return Unauthorized();
             }catch(Exception e){
                 Console.WriteLine(e.Message);
-                return Unauthorized();
+                return BadRequest(e);
             }
         }
+        // [HttpPost]
+        // [Route("ActiveEmail")]
+        // public ActionResult ActiveEmail(ActiveEmailRequest request){
+        //     try{
+        //         if(_service.ActiveEmail(request.Token,request.Id)){
+        //             return Ok();
+        //         }
+        //         else return Unauthorized();
+        //     }catch(Exception e){
+        //         Console.WriteLine(e.Message);
+        //         return Unauthorized(e);
+        //     }
+        // }
         [HttpGet]
-        [Route("ReserPasswordEmail")]
-        public ActionResult<ReadUserDto> ResetPasswordEmail(string pass,string email){
+        [Route("ResetPasswordEmail")]
+        public ActionResult<ReadUserDto> ResetPasswordEmail(ResetPassEmailRequest request){
             try{
-                LoginRespond r = _service.resetPass(email,pass);
+                LoginRespond r = _service.resetPass(request.Email,request.NewPass);
                 return Ok(r);
             }catch(Exception e){
                 Console.WriteLine(e.Message);
