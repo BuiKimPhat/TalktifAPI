@@ -103,6 +103,26 @@ namespace TalktifAPI.Controllers
                 return Unauthorized();
             }
         }
+        [HttpGet]
+        [Route("GetAllCountry")]
+        public ActionResult<Country> GetAllCountry(){
+            try{
+                return Ok(_service.GetAllCountry());
+            }catch(Exception e){
+                Console.WriteLine(e.Message);
+                return Unauthorized();
+            }
+        }
+        [HttpGet]
+        [Route("GetAllCityCountry/{id}")]
+        public ActionResult<City> GetAllCityCountry(int id){
+            try{
+                return Ok(_service.GettCityByCountry(id));
+            }catch(Exception e){
+                Console.WriteLine(e.Message);
+                return Unauthorized();
+            }
+        }
         [HttpPost]
         [Authorize]
         [Route("{id}")]
@@ -154,6 +174,7 @@ namespace TalktifAPI.Controllers
             }
         }
         [HttpPost("Report")]
+        [Authorize]
         public IActionResult Report(ReportRequest request)
         {
             try{
