@@ -29,6 +29,7 @@ public User(string Name,string Email,String Password,bool gender,String hobbies,
             this.Password = Password;
             Gender = gender;
             Hobbies = hobbies;
+            CityId = cityid;
             IsActive = true;
             ConfirmedEmail = true;
             IsAdmin = false;
@@ -44,6 +45,7 @@ public User(string Name,string Email,String Password,bool gender,String hobbies,
             this.Password = Password;
             Gender = gender;
             Hobbies = hobbies;
+            CityId = cityid;
             IsActive = true;
             ConfirmedEmail = true;
             IsAdmin = isAdmin;

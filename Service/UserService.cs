@@ -117,9 +117,10 @@ namespace TalktifAPI.Service
         public SignUpRespond signUp(SignUpRequest user)
         {
             User read = _userService.GetUserByEmail(user.Email);
-            if(read!=null) throw new Exception("User has already exist"+ read.Id);
+            if(read!=null) throw new Exception("User has already exist"+ read.Id); 
             _userService.Insert(new User(user.Name,user.Email,BC.HashPassword(user.Password),user.Gender,user.Hobbies,user.CityId));
             read = _userService.GetUserByEmail(user.Email);
+        
             string token = _jwtService.GenerateSecurityToken((bool)false);
             string refreshtoken = _jwtService.GenerateRefreshToken((bool)read.IsAdmin);
             _tokenService.Insert(new UserRefreshToken{
@@ -128,8 +129,7 @@ namespace TalktifAPI.Service
             UserRefreshToken refreshToken = _tokenService.GetTokenByToken(read.Id);
             return new SignUpRespond(new ReadUserDto{ Id = read.Id, Email = user.Email,IsActive = read.IsActive,
                                                         Name = user.Name,IsAdmin = read.IsAdmin, 
-                                                        Gender= user.Gender, Hobbies = user.Hobbies,  CityId = user.CityId }, token,refreshtoken,refreshToken.Id);
-            throw new Exception("Wrong Password");
+                                                        Gender= user.Gender, Hobbies = user.Hobbies, CityId = user.CityId }, token,refreshtoken,refreshToken.Id);
         }
 
         public ReadUserDto updateInfo(UpdateInfoRequest user)
