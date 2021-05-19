@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "8KMad7zbKUA1R+AKb2Hq2IyP3sti6msakcfT3w9UcMSEpKMpWg7IjNXXUqu2SOA5ZLFKFwtY0+RH/zeyF2b5eg==",
+  "dgSpecHash": "1mIIttZLkxGnoFcOGN7GiN43xGsz0c4LAgW1T+H7fCHMsuMqutUsJpmBW7tP0yDEhIyCo0jkRWmNm1q8qEpaOQ==",
   "success": true,
-  "projectFilePath": "E:\\Learnning\\PBL 3\\TalktifAPI\\TalktifAPI.csproj",
+  "projectFilePath": "E:\\Learnning\\PBL 3\\TalktifAPI\\TalktifAPI\\TalktifAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\andep\\.nuget\\packages\\automapper\\10.1.1\\automapper.10.1.1.nupkg.sha512",
     "C:\\Users\\andep\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\8.1.1\\automapper.extensions.microsoft.dependencyinjection.8.1.1.nupkg.sha512",
