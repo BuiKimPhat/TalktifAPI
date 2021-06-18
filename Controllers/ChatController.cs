@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using TalktifAPI.Dtos;
 using TalktifAPI.Dtos.Message;
@@ -14,98 +15,118 @@ namespace TalktifAPI.Controllers
     public class ChatController : ControllerBase
     {
         private readonly IChatService _service;
+        private readonly IJwtService _jwtService;
 
-        public ChatController(IChatService service)
+        public ChatController(IChatService service,IJwtService jwtService)
         {
             _service = service;
+            _jwtService = jwtService;
         }
-        [HttpGet]   
+        [HttpPost]   
         [Authorize]     
         [Route("CreateChatRoom")]
         public ActionResult Create(CreateChatRoomRequest createChatRoom)
         {
             try{
+                CheckId(createChatRoom.User1Id);
                 CreateChatRoomRespond respond =_service.CreateChatRoom(createChatRoom);
                 return Ok(respond);
             }catch(Exception e){
                 Console.WriteLine(e.ToString()+"createchatroom err");
-                return BadRequest();
+                return BadRequest(e.Message);
             }
         }
-        [HttpPost]   
+        [HttpGet]   
         [Authorize]     
         [Route("FetchAllChatRoom/{userid}")]
         public ActionResult<List<FetchAllChatRoomRespond>> FetchAllChatRoom(int userid)
         {
             try{
+                CheckId(userid);
                 List<FetchAllChatRoomRespond> list =_service.FetchAllChatRoom(userid);
                 if(list!=null) return Ok(list);
                 else return BadRequest();
             }catch(Exception e){
                 Console.WriteLine(e.ToString()+"createchatroom err");
-                return BadRequest();
+                return BadRequest(e.Message);
             }
         }
 
-        [HttpPost]   
+        [HttpGet]   
         [Authorize]     
-        [Route("FetchMessage")]
-        public ActionResult<List<MessageRespond>> FecthMessage(FetchMessageRequest request)
+        [Route("FetchMessage/{userid}/{roomid}/{top}")]
+        public ActionResult<List<MessageRespond>> FecthMessage(int userid,int roomid,int top)
         {
             try{
+                CheckId(userid);
+                FetchMessageRequest request = new FetchMessageRequest{
+                    RoomId = roomid, Top = top
+                };
                 List<MessageRespond> list =_service.FecthAllMessageInChatRoom(request);
                 if(list!=null) return Ok(list);
                 else return BadRequest();
             }catch(Exception e){
                 Console.WriteLine(e.ToString()+"fecth err");
-                return BadRequest();
+                return BadRequest(e.Message);
             }
         } 
-        [HttpPost]   
+        [HttpGet]   
         [Authorize]     
-        [Route("GetChatRoomInfo")]
-        public ActionResult<GetChatRoomInfoRespond> GetChatRoomInfo(GetChatRoomInfoRequest room)
+        [Route("GetChatRoomInfo/{id}/{userid}")]
+        public ActionResult<GetChatRoomInfoRespond> GetChatRoomInfo(int id,int userid)
         {
             try{
+                CheckId(userid);
+                GetChatRoomInfoRequest room = new GetChatRoomInfoRequest {
+                    Id = id, UserId = userid
+                };
                 GetChatRoomInfoRespond g =_service.GetChatRoomInfo(room);
-                if(g!=null) return Ok(g);
-                else return BadRequest();
+                return Ok(g);
             }catch(Exception e){
                 Console.WriteLine(e.ToString()+"\n get info err");
-                return BadRequest();
+                return BadRequest(e.Message);
             }
         }
         [HttpPost]   
         [Authorize]     
         [Route("AddMessage")]
-        public ActionResult<GetChatRoomInfoRespond> AddMessage(AddMessageRequest mess)
+        public ActionResult AddMessage(AddMessageRequest mess)
         {
             try{
+                CheckId(mess.IdSender);
                 bool check =_service.AddMessage(mess);
                 if( check!=false ){
                     return Ok();
                 }
                 else return BadRequest();
             }catch(Exception e){
-                Console.WriteLine(e.ToString()+"\n get info err");
-                return BadRequest();
+                Console.WriteLine(e.ToString()+"\n add message err");
+                return BadRequest(e.Message);
             }
         }
         [HttpDelete]   
         [Authorize]     
-        [Route("Delete")]
-        public ActionResult<GetChatRoomInfoRespond> DeleteFriend(DeleteFriendRequest mess)
+        [Route("Delete/{userid}/{roomid}")]
+        public ActionResult<GetChatRoomInfoRespond> DeleteFriend(int userid,int roomid)
         {
             try{
-                bool check =_service.DeleteChatRoom(mess);
-                if( check!=false ){
-                    return Ok();
-                }
-                else return BadRequest();
+                CheckId(userid);
+                DeleteFriendRequest mess = new DeleteFriendRequest{
+                    UserId = userid, RoomId = roomid
+                };
+                _service.DeleteChatRoom(mess);
+                return Ok();
             }catch(Exception e){
                 Console.WriteLine(e.ToString()+"\n delete err");
-                return BadRequest();
+                return BadRequest(e.Message);
             }
+        }
+        public int GetId(){
+            String token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            return _jwtService.GetId(token);
+        }
+        public void CheckId(int id){
+            if(GetId()!=id) throw new Exception("You don't have permission to do this action");
         }
     }
 }

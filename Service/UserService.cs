@@ -37,7 +37,7 @@ namespace TalktifAPI.Service
             User user = _userService.GetById(id);
             if(user==null) throw new Exception("user doesn't exist!");
             return new ReadUserDto{ Name = user.Name, Email= user.Email, Id = user.Id ,Gender = user.Gender,
-                                     IsAdmin = user.IsAdmin, IsActive = user.IsActive, Hobbies = user.Hobbies};
+                                     IsAdmin = user.IsAdmin, IsActive = user.IsActive, CityId = user.CityId};
         }
 
         public bool inActiveUser(int id)
@@ -55,14 +55,11 @@ namespace TalktifAPI.Service
             return true;
         }
 
-        public RefreshTokenRespond RefreshToken(ReFreshToken token)
+        public RefreshTokenRespond RefreshToken(ReFreshToken token,int id)
         {
             try{
-            if(!_jwtService.ValidRefreshToken(new UserRefreshToken{
-                Id = token.Id, 
-                RefreshToken =  token.RefreshToken
-            })) throw new SecurityTokenExpiredException();  
-            var jwtToken = _jwtService.GenerateSecurityToken(_jwtService.GetRole(token.RefreshToken));
+            if(!_jwtService.ValidRefreshToken(token.RefreshToken)) throw new SecurityTokenExpiredException();  
+            var jwtToken = _jwtService.GenerateSecurityToken(_jwtService.GetId(token.RefreshToken));
             return new RefreshTokenRespond{
                 Token = jwtToken
             };
@@ -92,24 +89,23 @@ namespace TalktifAPI.Service
             }
             user.Password = BC.HashPassword(newpass);
             _userService.Update(user);
-            var jwtToken = _jwtService.GenerateSecurityToken((bool)user.IsAdmin);
-            return new LoginRespond(getInfoById(user.Id), jwtToken, null,0);
+            var jwtToken = _jwtService.GenerateRefreshToken(user.Id);
+            return new LoginRespond(getInfoById(user.Id), jwtToken);
         }
 
         public LoginRespond signIn(LoginRequest user)
         { 
             User read = _userService.GetUserByEmail(user.Email);
-            if(read==null) throw new Exception();
+            if(read==null) throw new Exception("Wrong Email");
             if (true == BC.Verify(user.Password, read.Password) && read.IsActive == true && read.ConfirmedEmail==true){
-                string token = _jwtService.GenerateSecurityToken((bool)read.IsAdmin);
-                string refreshtoken = _jwtService.GenerateRefreshToken((bool)read.IsAdmin);
+                string token = _jwtService.GenerateRefreshToken(read.Id);
                 _tokenService.Insert(new UserRefreshToken{
-                    User = read.Id,RefreshToken = refreshtoken,
+                    User = read.Id,RefreshToken = token,
                     CreateAt = DateTime.Now,Device = user.Device});
                 UserRefreshToken refreshToken = _tokenService.GetTokenByToken(read.Id);
                 return new LoginRespond(new ReadUserDto { Email = read.Email, Name = read.Name,
                                                         Id = read.Id , Gender= read.Gender, IsAdmin = read.IsAdmin, 
-                                                        Hobbies = read.Hobbies,  CityId = read.CityId , IsActive = read.IsActive }, token,refreshtoken,refreshToken.Id);
+                                                        CityId = read.CityId , IsActive = read.IsActive }, token);
             }
             throw new Exception("Wrong Password");
         }
@@ -117,33 +113,31 @@ namespace TalktifAPI.Service
         public SignUpRespond signUp(SignUpRequest user)
         {
             User read = _userService.GetUserByEmail(user.Email);
-            if(read!=null) throw new Exception("User has already exist"+ read.Id); 
-            _userService.Insert(new User(user.Name,user.Email,BC.HashPassword(user.Password),user.Gender,user.Hobbies,user.CityId));
+            if(read!=null) throw new Exception("User has already exist"); 
+            _userService.Insert(new User(user.Name,user.Email,BC.HashPassword(user.Password),
+                                user.Gender,"Khong con dung nua",user.CityId,false));
             read = _userService.GetUserByEmail(user.Email);
-        
-            string token = _jwtService.GenerateSecurityToken((bool)false);
-            string refreshtoken = _jwtService.GenerateRefreshToken((bool)read.IsAdmin);
+            string token = _jwtService.GenerateRefreshToken(read.Id);
             _tokenService.Insert(new UserRefreshToken{
-                User = read.Id,RefreshToken = refreshtoken,
+                User = read.Id,RefreshToken = token,
                 CreateAt = DateTime.Now,Device = user.Device});
             UserRefreshToken refreshToken = _tokenService.GetTokenByToken(read.Id);
             return new SignUpRespond(new ReadUserDto{ Id = read.Id, Email = user.Email,IsActive = read.IsActive,
-                                                        Name = user.Name,IsAdmin = read.IsAdmin, 
-                                                        Gender= user.Gender, Hobbies = user.Hobbies, CityId = user.CityId }, token,refreshtoken,refreshToken.Id);
+                                        Name = user.Name,IsAdmin = read.IsAdmin, 
+                                        Gender= user.Gender, CityId = user.CityId },token);
         }
-
         public ReadUserDto updateInfo(UpdateInfoRequest user)
         {
             if(user==null || !isUserExists(user.Id)) throw new Exception("Not found");
             User u = _userService.GetById(user.Id);
+            if(!BC.Verify(user.OldPassword,u.Password)) throw new Exception("Wrong Password");
             u.Email = user.Email;
             u.Gender = user.Gender;
             u.Name = user.Name;
-            u.Hobbies = user.Hobbies;
             u.CityId = user.CityId;
             _userService.Update(u);
             return new ReadUserDto { Email = user.Email,Name = user.Name,
-                        Id = u.Id ,Gender= user.Gender, IsAdmin = u.IsAdmin,  Hobbies = user.Hobbies, CityId = user.CityId };
+                        Id = u.Id ,Gender= user.Gender, IsAdmin = u.IsAdmin, CityId = user.CityId };
         }
         public bool ActiveEmail(string token, int id)
         {
@@ -160,7 +154,7 @@ namespace TalktifAPI.Service
         public bool CheckToken(string token, int id)
         {
             UserRefreshToken t = _tokenService.GetById(id);
-            if( t!= null && token.Equals(t.RefreshToken)) return true;
+            if( t!= null && String.Compare(t.RefreshToken,token)==0) return true;
             return false;
         }
 
@@ -169,7 +163,7 @@ namespace TalktifAPI.Service
             User user = _userService.GetUserByEmail(email);
             if(user==null) throw new Exception("user doesn't exist!");
             return new ReadUserDto{ Name = user.Name, Email= user.Email, Id = user.Id ,Gender = user.Gender,
-                                IsAdmin = user.IsAdmin, IsActive = user.IsActive, Hobbies = user.Hobbies , CityId = user.CityId};
+                                IsAdmin = user.IsAdmin, IsActive = user.IsActive, CityId = user.CityId};
         }
 
         public List<Country> GetAllCountry()
@@ -180,6 +174,35 @@ namespace TalktifAPI.Service
         public List<City> GettCityByCountry(int countryid)
         {
             return _cityRepository.GetCityByCountry(countryid);
+        }
+
+        public string GetForgotPass(int id, string pass)
+        {
+            var user = _userService.GetById(id);
+            if(user!= null){
+                if(BC.Verify(pass,user.Password)){
+                    return user.ForgotPass;
+                }else{
+                    throw new Exception("Wrong pass");
+                }
+            }else{
+                throw new Exception("User not exist");
+            }
+        }
+
+        public void UpdateForgotPass(UpdateForgotPassRequest request)
+        {
+            var user = _userService.GetById(request.Id);
+            if(user!= null){
+                if(String.Compare(request.oldForgotPass,user.ForgotPass)==0){
+                    user.ForgotPass = request.NewForgotPass;
+                    _userService.Update(user);
+                }else{
+                    throw new Exception("Wrong pass");
+                }
+            }else{
+                throw new Exception("User not exist");
+            }
         }
     }   
 }

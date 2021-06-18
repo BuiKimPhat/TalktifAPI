@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using TalktifAPI.Service;
 using TalktifAPI.Dtos.User;
+using System.Linq;
 
 namespace TalktifAPI.Controllers
 {
@@ -19,11 +20,13 @@ namespace TalktifAPI.Controllers
     {
         private readonly IUserService _service;
         private readonly IEmailService _emailService;
+        private readonly IJwtService _jwtService;
 
-        public UsersController(IUserService service,IEmailService emailService)
+        public UsersController(IUserService service,IEmailService emailService,IJwtService jwtService)
         {
             _service = service;
             _emailService = emailService;
+            _jwtService = jwtService;
         }
         [HttpPost]        
         [Route("SignUp")]
@@ -31,18 +34,10 @@ namespace TalktifAPI.Controllers
         {
             try{
                 SignUpRespond r = _service.signUp(user);
-                // MailContent content = new MailContent {
-                //     To = user.Email,
-                //     Subject = "Confirm Email",
-                //     Body = "<h3><strong>Xin chào "+user.Name+" </strong></h3><p>Cảm ơn bạn vừa đăng ký tài khoản Talktif, nhập mã code này để hoàn tấy đăng ký : " + r.RefreshTokenId + ""  + r.RefreshToken+"</p>"
-                // };
-                // Console.WriteLine(content.Body);
-                // _emailService.SendMail(content);
-                if(r!=null) setTokenCookie(r.RefreshToken,r.RefreshTokenId);
                 return Ok(r);
             }catch(Exception e){
                 Console.WriteLine(e.ToString());
-                return BadRequest(e);
+                return BadRequest(e.Message);
             }
         }
         [HttpPost]
@@ -51,11 +46,10 @@ namespace TalktifAPI.Controllers
         {
             try{
                 LoginRespond r = _service.signIn(user);
-                if(r!=null) setTokenCookie(r.RefreshToken,r.RefreshTokenId);
                 return Ok(r);
             }catch(Exception e){
                  Console.WriteLine(e.ToString());
-                return BadRequest(e);
+                return BadRequest(e.Message);
             }
         }
         [HttpPost]
@@ -64,35 +58,17 @@ namespace TalktifAPI.Controllers
         {
             try{
                 var u = _service.getInfoByEmail(user.Email);
-                if(u==null) throw new Exception("Email is not exist");
-                // Random random = new Random();
-                // int num = random.Next(1000,9999);
-                // MailContent content = new MailContent {
-                //     To = user.Email,
-                //     Subject = "Reset Password Email",
-                //     Body = "<h3><strong>Xin chào</strong></h3><p>Bạn vừa thay đổi mật  khẩu tài khoản Talktif, mã xác nhận của bạn là : "+num+"</p>"
-                // };
-                // _emailService.SendMail(content);
-                return Ok(u.Hobbies);
+                if(u==null){
+                    throw new Exception("Email is not exist");
+                }else{
+                    return Ok("Khong con su dung");
+                }
             }catch(Exception e){
                 Console.WriteLine(e.Message);
-                return BadRequest(e);
+                return BadRequest(e.Message);
             }
         }
-        // [HttpPost]
-        // [Route("ActiveEmail")]
-        // public ActionResult ActiveEmail(ActiveEmailRequest request){
-        //     try{
-        //         if(_service.ActiveEmail(request.Token,request.Id)){
-        //             return Ok();
-        //         }
-        //         else return Unauthorized();
-        //     }catch(Exception e){
-        //         Console.WriteLine(e.Message);
-        //         return Unauthorized(e);
-        //     }
-        // }
-        [HttpGet]
+        [HttpPost]
         [Route("ResetPasswordEmail")]
         public ActionResult<ReadUserDto> ResetPasswordEmail(ResetPassEmailRequest request){
             try{
@@ -100,7 +76,7 @@ namespace TalktifAPI.Controllers
                 return Ok(r);
             }catch(Exception e){
                 Console.WriteLine(e.Message);
-                return Unauthorized();
+                return BadRequest(e.Message);
             }
         }
         [HttpGet]
@@ -110,7 +86,7 @@ namespace TalktifAPI.Controllers
                 return Ok(_service.GetAllCountry());
             }catch(Exception e){
                 Console.WriteLine(e.Message);
-                return Unauthorized();
+                return BadRequest(e.Message);
             }
         }
         [HttpGet]
@@ -120,15 +96,16 @@ namespace TalktifAPI.Controllers
                 return Ok(_service.GettCityByCountry(id));
             }catch(Exception e){
                 Console.WriteLine(e.Message);
-                return Unauthorized();
+                return BadRequest(e.Message);
             }
         }
-        [HttpPost]
+        [HttpGet]
         [Authorize]
         [Route("{id}")]
         public ActionResult<ReadUserDto> getUserInfo(int id)
         {
             try{
+                CheckId(id);
                 return Ok(_service.getInfoById(id));
             }catch(Exception e){
                 Console.WriteLine(e.Message);
@@ -136,10 +113,11 @@ namespace TalktifAPI.Controllers
             }
         }
         [Authorize]
-        [HttpPost]  
+        [HttpPut]  
         [Route("UpdateInfo")]
         public ActionResult<ReadUserDto> updateUserInfo(UpdateInfoRequest update){
             try{
+                CheckId(update.Id);
                 return _service.updateInfo(update);
             }catch(Exception e){
                 return NotFound(e.Message);
@@ -150,6 +128,7 @@ namespace TalktifAPI.Controllers
         [Route("InActiveUser/{id}")]
         public ActionResult InActiveUser (int id){
             try{
+                CheckId(id);
                 _service.inActiveUser(id);
                 return Ok();
             }catch(Exception e){
@@ -157,20 +136,20 @@ namespace TalktifAPI.Controllers
                 return NotFound(e.Message);
             }
         }
-        [HttpPost("Refresh-Token")]
+        [HttpPost("RefreshToken")]
         public IActionResult RefreshToken(RefreshTokenRequest request)
         {
             try{
-            var refreshToken = Request.Cookies["RefreshToken"].ToString();
-            var refreshTokenId = Request.Cookies["RefreshTokenId"].ToString();
-            var response = _service.RefreshToken(new ReFreshToken{
+                var refreshToken = Request.Cookies["RefreshToken"].ToString();
+                var refreshTokenId = Request.Cookies["RefreshTokenId"].ToString();
+                var response = _service.RefreshToken(new ReFreshToken{
                     Id = Convert.ToInt32(refreshTokenId),
                     RefreshToken = refreshToken
-            });
+                },GetId());
             return Ok(response);
             }catch(Exception e){
                 Console.Write(e.Message);
-                return Unauthorized();
+                return BadRequest(e.Message);
             }
         }
         [HttpPost("Report")]
@@ -178,22 +157,45 @@ namespace TalktifAPI.Controllers
         public IActionResult Report(ReportRequest request)
         {
             try{
-            var respond = _service.Report(request);
-            return Ok();
+                CheckId(request.Reporter);
+                var respond = _service.Report(request);
+                return Ok();
             }catch(Exception e){
                 Console.Write(e.Message);
-                return Unauthorized();
+                return BadRequest(e.Message);
             }
         }
-        private void setTokenCookie(string token,int id)
+        [HttpGet("GetForgotPass/{pass}")]
+        [Authorize]
+        public IActionResult GetForgotPass(String pass)
         {
-            var cookieOptions = new CookieOptions
-            {
-                HttpOnly = true,
-                Expires = DateTime.UtcNow.AddMonths(1)
-            };
-            Response.Cookies.Append("RefreshToken", token, cookieOptions);
-            Response.Cookies.Append("RefreshTokenId", id.ToString(), cookieOptions);
+            try{
+                var respond = _service.GetForgotPass(GetId(),pass);
+                return Ok(respond);
+            }catch(Exception e){
+                Console.Write(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
+        [HttpPut("UpdateForgotPass")]
+        [Authorize]
+        public IActionResult UpdateForgotPass(UpdateForgotPassRequest request)
+        {
+            try{
+                CheckId(request.Id);
+                _service.UpdateForgotPass(request);
+                return Ok();
+            }catch(Exception e){
+                Console.Write(e.Message);
+                return BadRequest(e.Message);
+            }
+        }
+        public int GetId(){
+            String token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            return _jwtService.GetId(token);
+        }
+        public void CheckId(int id){
+            if(GetId()!=id) throw new Exception("You don't have permission to do this action");
         }
     }
 }

@@ -17,30 +17,19 @@ namespace TalktifAPI.Dtos
         public bool? Gender { get; set; }
         public bool? IsAdmin {get; set;}
         public bool? IsActive {get; set;}
-        public string Hobbies { get; set; }
         public int CityId { get; set; }
         [Required]
         public string Token {get; set;}
-        [Required]
-        [JsonIgnore]                
-        public string RefreshToken {get; set;}
-        [Required]
-        [JsonIgnore]                
-        public int RefreshTokenId {get; set;}
-        
-        public SignUpRespond(ReadUserDto user , string token,string refreshtoken,int refreshtokenId)
+        public SignUpRespond(ReadUserDto user , string token)
         {
             Id = user.Id;
             Name = user.Name;
             Email = user.Email;
             Gender = user.Gender;
-            Hobbies = user.Hobbies;
             CityId = user.CityId;
             IsActive = user.IsActive;
             IsAdmin = user.IsAdmin;
             Token = token;
-            RefreshToken = refreshtoken;
-            RefreshTokenId = refreshtokenId;
         }
     }
 }

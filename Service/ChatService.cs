@@ -63,29 +63,24 @@ namespace TalktifAPI.Service
                     User = r.User2Id
                 });
             i.ChatRoomName=r.User1NickName+ " and "+r.User2NickName;
+            _chatRoomRepository.Update(i);
             return new CreateChatRoomRespond{
                 RoomId = i.Id,
                 RoomName = i.ChatRoomName,
             };
         }
 
-        public bool DeleteChatRoom(DeleteFriendRequest room)
+        public void DeleteChatRoom(DeleteFriendRequest room)
         {
-            try{
-                ChatRoom c =_chatRoomRepository.GetById(room.RoomId);
-                UserChatRoom cr1 = _userChatRoomRepository.GetUserChatRoomByFK(room.UserId,room.RoomId);
-                _userChatRoomRepository.Delete(cr1);
-                c.NumOfMember--;
-                _chatRoomRepository.Update(c);
-                return true;
-            }catch(NullReferenceException e){
-                Console.WriteLine(e.Message+"\n Delete ChatRoom");
-                return false;
-            }catch(Exception e){
-                Console.WriteLine(e.Message);
-                return false;
-            }
-            
+            ChatRoom c =_chatRoomRepository.GetById(room.RoomId);
+            UserChatRoom cr1 = _userChatRoomRepository.GetUserChatRoomByFK(room.UserId,room.RoomId);
+            _userChatRoomRepository.Delete(cr1);
+            c.NumOfMember--;
+            if(c.NumOfMember == 0) {
+                _chatRoomRepository.Delete(c);
+            }else {
+            _chatRoomRepository.Update(c);
+            }      
         }
 
         public List<MessageRespond> FecthAllMessageInChatRoom(FetchMessageRequest request)
@@ -123,14 +118,23 @@ namespace TalktifAPI.Service
         public GetChatRoomInfoRespond GetChatRoomInfo(GetChatRoomInfoRequest room)
         {
             UserChatRoom[] list = _userChatRoomRepository.GetAllChatRoomMember(room.Id);
-            Console.Write(list.Length);
-            GetChatRoomInfoRespond r = new GetChatRoomInfoRespond{
-                NickName1 = list[0].NickName,
-                User1Id = list[0].User,
-                NickName2 = list[1].NickName,
-                User2Id = list[1].User
-            };
-            return r;
+            if(list.Length>1){
+                GetChatRoomInfoRespond r = new GetChatRoomInfoRespond{
+                    NickName1 = list[0].NickName,
+                    User1Id = list[0].User,
+                    NickName2 = list[1].NickName,
+                    User2Id = list[1].User
+                };
+                return r;
+            }else{
+                GetChatRoomInfoRespond r = new GetChatRoomInfoRespond{
+                    NickName1 = list[0].NickName,
+                    User1Id = list[0].User,
+                    NickName2 = "Unknown",
+                    User2Id = 0
+                };
+                return r;
+            }
         }
     }
 }

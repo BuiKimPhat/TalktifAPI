@@ -27,9 +27,8 @@ namespace TalktifAPI.Models
         [Column("createAt", TypeName = "datetime")]
         public DateTime? CreateAt { get; set; }
 
-        [JsonIgnore]
-
         [InverseProperty(nameof(City.Country))]
+        [JsonIgnore]
         public virtual ICollection<City> Cities { get; set; }
     }
 }
