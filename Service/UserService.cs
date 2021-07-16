@@ -76,6 +76,7 @@ namespace TalktifAPI.Service
                 Reporter = request.Reporter,
                 Suspect = request.Suspect,
                 Reason = request.Reason,
+                CreatedAt = DateTime.Now.AddHours(7),
                 Status = false,
             });
             return true;
@@ -90,6 +91,9 @@ namespace TalktifAPI.Service
             user.Password = BC.HashPassword(newpass);
             _userService.Update(user);
             var jwtToken = _jwtService.GenerateRefreshToken(user.Id);
+            _tokenService.Insert(new UserRefreshToken{
+                    User = user.Id,RefreshToken = jwtToken,
+                    CreateAt = DateTime.Now.AddHours(7),Device = "Reset Password"});
             return new LoginRespond(getInfoById(user.Id), jwtToken);
         }
 
@@ -100,12 +104,14 @@ namespace TalktifAPI.Service
             if (true == BC.Verify(user.Password, read.Password) && read.IsActive == true && read.ConfirmedEmail==true){
                 string token = _jwtService.GenerateRefreshToken(read.Id);
                 _tokenService.Insert(new UserRefreshToken{
-                    User = read.Id,RefreshToken = token,
-                    CreateAt = DateTime.Now,Device = user.Device});
-                UserRefreshToken refreshToken = _tokenService.GetTokenByToken(read.Id);
+                User = read.Id,RefreshToken = token,
+                CreateAt = DateTime.Now.AddHours(7),Device = user.Device});
                 return new LoginRespond(new ReadUserDto { Email = read.Email, Name = read.Name,
                                                         Id = read.Id , Gender= read.Gender, IsAdmin = read.IsAdmin, 
                                                         CityId = read.CityId , IsActive = read.IsActive }, token);
+            }
+            else{
+                if(read.IsActive!=true) throw new Exception("Your account are locked, contact to admin for infomation");
             }
             throw new Exception("Wrong Password");
         }
@@ -120,8 +126,7 @@ namespace TalktifAPI.Service
             string token = _jwtService.GenerateRefreshToken(read.Id);
             _tokenService.Insert(new UserRefreshToken{
                 User = read.Id,RefreshToken = token,
-                CreateAt = DateTime.Now,Device = user.Device});
-            UserRefreshToken refreshToken = _tokenService.GetTokenByToken(read.Id);
+                CreateAt = DateTime.Now.AddHours(7),Device = user.Device});
             return new SignUpRespond(new ReadUserDto{ Id = read.Id, Email = user.Email,IsActive = read.IsActive,
                                         Name = user.Name,IsAdmin = read.IsAdmin, 
                                         Gender= user.Gender, CityId = user.CityId },token);
@@ -134,10 +139,11 @@ namespace TalktifAPI.Service
             u.Email = user.Email;
             u.Gender = user.Gender;
             u.Name = user.Name;
+            u.Password = BC.HashPassword(user.Password);
             u.CityId = user.CityId;
             _userService.Update(u);
             return new ReadUserDto { Email = user.Email,Name = user.Name,
-                        Id = u.Id ,Gender= user.Gender, IsAdmin = u.IsAdmin, CityId = user.CityId };
+                        Id = u.Id ,Gender= user.Gender, IsAdmin = u.IsAdmin, CityId = user.CityId, IsActive = u.IsActive };
         }
         public bool ActiveEmail(string token, int id)
         {

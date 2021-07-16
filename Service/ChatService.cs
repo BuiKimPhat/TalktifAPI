@@ -27,7 +27,7 @@ namespace TalktifAPI.Service
                 Sender = mess.IdSender,
                 ChatRoomId  = mess.IdChatRoom,
                 Content = mess.Message,
-                SentAt = DateTime.Now
+                SentAt = DateTime.Now.AddHours(7),
             });
             return true;
             }catch(Exception err){
@@ -44,12 +44,29 @@ namespace TalktifAPI.Service
             return true;
         }
 
+        public void  CheckDuplicateChatRoom(int uid1,int uid2){
+            try{
+                var list = _userChatRoomRepository.GetSharedChatRoon(uid1,uid2);
+                foreach(var i in list){
+                    var chatroon = _chatRoomRepository.GetById(i);
+                    if(chatroon.NumOfMember==2){
+                            throw new Exception("You guys has already been a friend");
+                    }
+                    else{
+                        continue;
+                    }
+                }
+            }catch(NullReferenceException){
+
+            }
+        }
         public CreateChatRoomRespond CreateChatRoom(CreateChatRoomRequest r)
         {
-             _chatRoomRepository.Insert(new ChatRoom{
+            CheckDuplicateChatRoom(r.User1Id,r.User2Id);
+            _chatRoomRepository.Insert(new ChatRoom{
                     NumOfMember = 2,
                     ChatRoomName = r.User1Id + "and" + r.User2Id,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.Now.AddHours(7),
                 });
             ChatRoom i = _chatRoomRepository.GetChatRoomByName(r.User1Id + "and" + r.User2Id);
             _userChatRoomRepository.Insert(new UserChatRoom{
