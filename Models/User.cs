@@ -18,7 +18,7 @@ namespace TalktifAPI.Models
             UserChatRooms = new HashSet<UserChatRoom>();
             UserRefreshTokens = new HashSet<UserRefreshToken>();
         }
-        public User(string Name,string Email,String Password,bool gender,String forgotpass,int cityid ,bool isAdmin)
+        public User(string Name,string Email,String Password,bool gender,int cityid ,bool isAdmin,String hobbies)
         {
             Reports = new HashSet<Report>();
             UserChatRooms = new HashSet<UserChatRoom>();
@@ -27,12 +27,11 @@ namespace TalktifAPI.Models
             this.Email = Email;
             this.Password = Password;
             Gender = gender;
-            ForgotPass = forgotpass;
             CityId = cityid;
             IsActive = true;
-            ConfirmedEmail = true;
             IsAdmin = isAdmin;
             CreatedAt = DateTime.Now.AddHours(7);
+            Hobbies = hobbies;
         }
 
         [Key]
@@ -55,17 +54,15 @@ namespace TalktifAPI.Models
         [Column("cityId")]
         public int CityId { get; set; }
         [Required]
-        [Column("forgotPass")]
-        [StringLength(100)]
-        public string ForgotPass { get; set; }
         [Column("isAdmin")]
         public bool? IsAdmin { get; set; }
-        [Column("confirmedEmail")]
-        public bool? ConfirmedEmail { get; set; }
         [Column("isActive")]
         public bool? IsActive { get; set; }
         [Column("createdAt", TypeName = "datetime")]
         public DateTime? CreatedAt { get; set; }
+        [Column("hobbies")]
+        [StringLength(100)]
+        public string Hobbies { get; set; }
 
         [ForeignKey(nameof(CityId))]
         [InverseProperty("Users")]
