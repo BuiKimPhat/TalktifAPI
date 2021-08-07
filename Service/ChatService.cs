@@ -45,45 +45,42 @@ namespace TalktifAPI.Service
         }
 
         public void  CheckDuplicateChatRoom(int uid1,int uid2){
-            try{
-                var list = _userChatRoomRepository.GetSharedChatRoon(uid1,uid2);
-                foreach(var i in list){
-                    var chatroon = _chatRoomRepository.GetById(i);
-                    if(chatroon.NumOfMember==2){
-                            throw new Exception("You guys has already been a friend");
-                    }
-                    else{
-                        continue;
-                    }
+            var list = _userChatRoomRepository.GetSharedChatRoon(uid1,uid2);
+            if(list==null) return ;
+            foreach(var i in list){
+                var chatroon = _chatRoomRepository.GetById(i);
+                if(chatroon.NumOfMember==2){
+                    throw new Exception("You guys has already been a friend");
                 }
-            }catch(NullReferenceException){
-
+                else{
+                    continue;
+                }
             }
         }
         public CreateChatRoomRespond CreateChatRoom(CreateChatRoomRequest r)
         {
             CheckDuplicateChatRoom(r.User1Id,r.User2Id);
-            _chatRoomRepository.Insert(new ChatRoom{
+            ChatRoom chatRoom = new ChatRoom{
                     NumOfMember = 2,
                     ChatRoomName = r.User1Id + "and" + r.User2Id,
                     CreatedAt = DateTime.Now.AddHours(7),
-                });
-            ChatRoom i = _chatRoomRepository.GetChatRoomByName(r.User1Id + "and" + r.User2Id);
+            };
+            _chatRoomRepository.Insert(chatRoom);
             _userChatRoomRepository.Insert(new UserChatRoom{
-                    ChatRoomId = i.Id,
+                    ChatRoomId = chatRoom.Id,
                     NickName = r.User1NickName,
                     User = r.User1Id
                 });
             _userChatRoomRepository.Insert(new UserChatRoom{
-                    ChatRoomId = i.Id,
+                    ChatRoomId = chatRoom.Id,
                     NickName = r.User2NickName,
                     User = r.User2Id
                 });
-            i.ChatRoomName=r.User1NickName+ " and "+r.User2NickName;
-            _chatRoomRepository.Update(i);
+            chatRoom.ChatRoomName=r.User1NickName+ " and "+r.User2NickName;
+            _chatRoomRepository.Update(chatRoom);
             return new CreateChatRoomRespond{
-                RoomId = i.Id,
-                RoomName = i.ChatRoomName,
+                RoomId = chatRoom.Id,
+                RoomName = chatRoom.ChatRoomName,
             };
         }
 
